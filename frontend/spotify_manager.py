@@ -150,15 +150,15 @@ def get_playlist_tracks(id):
     while(results['next']):
         for _, item in enumerate(results['items']):
             track = item['track']
-            if track is  None:
-                continue
-            else:
+            # if track is  None:
+            #     continue
+            # else:
                 tracks.append(UserTrack(track['name'], track['artists'][0]['name'], track['album']['name'], track['uri']))
         results = sp.next(results)
     for _, item in enumerate(results['items']):
-        if item['track'] is None:
-            continue
-        else:
+        # if item['track'] is None:
+        #     continue
+        # else:
             track = item['track']
             tracks.append(UserTrack(track['name'], track['artists'][0]['name'], track['album']['name'], track['uri']))
     return tracks
@@ -210,17 +210,17 @@ def parse_show(show):
 def refresh_data():
     DATASTORE.clear()
     results = sp.current_user_saved_tracks(limit=pageSize, offset=0)
-    totalIndex = 0 # variable to preserve playlist sort index when calling offset loop down below
+    # totalIndex = 0 # variable to preserve playlist sort index when calling offset loop down below
     while(results['next']):
         offset = results['offset']
         for idx, item in enumerate(results['items']):
-            if item['track']['uri'] is None:
-                #print(item['track']['uri'])  #for testing purposes
-                continue
-            else:
+            # if item['track']['uri'] is None:
+            #     #print(item['track']['uri'])  #for testing purposes
+            #     continue
+            # else:
                 track = item['track']
                 DATASTORE.setSavedTrack(idx + offset, UserTrack(track['name'], track['artists'][0]['name'], track['album']['name'], track['uri']))
-                totalIndex = totalIndex + 1
+                # totalIndex = totalIndex + 1
         results = sp.next(results)
 
     offset = results['offset']
