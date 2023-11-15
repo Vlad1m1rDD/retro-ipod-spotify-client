@@ -31,9 +31,9 @@ UP_KEY_CODE = 8255233 if platform == "darwin" else 111
 DOWN_KEY_CODE = 8320768 if platform == "darwin" else 116
 LEFT_KEY_CODE = 8124162 if platform == "darwin" else 113
 RIGHT_KEY_CODE = 8189699 if platform == "darwin" else 114
-PREV_KEY_CODE = 2818092 if platform == "darwin" else 0
-NEXT_KEY_CODE = 3080238 if platform == "darwin" else 0
-PLAY_KEY_CODE = 3211296 if platform == "darwin" else 0
+PREV_KEY_CODE = 2818092 if platform == "darwin" else 173
+NEXT_KEY_CODE = 3080238 if platform == "darwin" else 171
+PLAY_KEY_CODE = 3211296 if platform == "darwin" else 172
 
 SCREEN_TIMEOUT_SECONDS = 60
 
