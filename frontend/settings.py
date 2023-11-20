@@ -9,5 +9,5 @@ for addr, name in nearby_devices:
 
 
 def bluetoothDevices():
-    return list(nearby_devices)
+    return nearby_devices
     # return "found %d devices" % len(nearby_devices)

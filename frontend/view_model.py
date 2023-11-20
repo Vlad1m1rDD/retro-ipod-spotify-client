@@ -370,7 +370,7 @@ class SettingPage(MenuPage):
         return self.num_single_setting
 
     def get_content(self):
-        return bluetoothDevices()
+        print(bluetoothDevices())
     
     
 
