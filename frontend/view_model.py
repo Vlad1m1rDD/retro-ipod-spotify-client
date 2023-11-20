@@ -369,7 +369,7 @@ class SettingPage(MenuPage):
         return "Settings"
 
     def total_size(self):
-        return self.num_single_setting
+        return len(self.get_pages())
     
     def get_pages(self):
         return self.pages
@@ -383,19 +383,24 @@ class BluetoothPage(SettingPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page)
         self.single_setting = self.get_content()
+        self.devices = self.get_devices()
 
     def get_title(self):
-        return "Settings"
+        return "Bluetooth"
 
     def total_size(self):
-        return len(self.get_pages())
+        return len(self.devices())
 
     def page_at(self, index):
-        return self.get_pages()[index]
+        device = self.get_devices()[index]
+        port = self.get_ports()[0]
+        connectToBtDevice(device, port)
 
-    def get_content(self):
+    def get_devices(self):
         return findBluetoothDevices()
-        # return devices[1]
+
+    def get_ports(self):
+        return findAvailablePorts()
 
     def render(self):
         r = super().render()
