@@ -1,13 +1,17 @@
-# simple inquiry example
 import bluetooth
 
-nearby_devices = bluetooth.discover_devices(lookup_names=True)
-print("found %d devices" % len(nearby_devices))
 
-for addr, name in nearby_devices:
-    print("  %s - %s" % (addr, name))
+def findBluetoothDevices():
+    return bluetooth.discover_devices(lookup_names=True)
 
 
-def bluetoothDevices():
-    return nearby_devices
-    # return "found %d devices" % len(nearby_devices)
+def findAvailablePorts():
+    return bluetooth.get_available_port(bluetooth.RFCOMM)
+
+
+def connectToBtDevice(device, port):
+    sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+    sock.connect((device["addr"], port))
+    print("Connected to: " + device["name"])
+    sock.close()
+    return True

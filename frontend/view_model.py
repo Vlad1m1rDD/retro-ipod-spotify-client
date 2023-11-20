@@ -1,4 +1,4 @@
-from settings import bluetoothDevices
+from settings import *
 import spotify_manager
 import re as re
 from functools import lru_cache
@@ -361,7 +361,7 @@ class SettingPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.single_setting = self.get_content()
-        # self.num_single_setting = len(self.single_setting)
+        self.num_single_setting = len(self.single_setting)
 
     def get_title(self):
         return "Settings"
@@ -370,7 +370,8 @@ class SettingPage(MenuPage):
         return self.num_single_setting
 
     def get_content(self):
-        print(bluetoothDevices())
+        devices = findBluetoothDevices()
+        return devices[1]
     
     
 
