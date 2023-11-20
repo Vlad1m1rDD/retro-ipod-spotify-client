@@ -1,3 +1,4 @@
+from frontend.settings import bluetoothDevices
 import spotify_manager
 import re as re
 from functools import lru_cache
@@ -356,6 +357,18 @@ class PlaylistsPage(MenuPage):
         return SinglePlaylistPage(self.playlists[index], self)
 
 
+class SettingPage(PlaylistsPage):
+    def __init__(self, previous_page):
+        super().__init__(previous_page)
+
+    def get_title(self):
+        return "Settings"
+
+    def get_content(self):
+        return bluetoothDevices()
+    
+    
+
 class AlbumsPage(PlaylistsPage):
     def __init__(self, previous_page):
         super().__init__(previous_page)
@@ -569,6 +582,7 @@ class RootPage(MenuPage):
             NewReleasesPage(self),
             PlaylistsPage(self),
             ShowsPage(self),
+            SettingPage(self),
             SearchPage(self),
             NowPlayingPage(self, "Now Playing", NowPlayingCommand()),
         ]
