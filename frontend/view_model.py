@@ -370,8 +370,8 @@ class SettingPage(MenuPage):
         return self.num_single_setting
 
     def get_content(self):
-        devices = findBluetoothDevices()
-        return devices[1]
+        return findBluetoothDevices()
+        # return devices[1]
     
     
 
