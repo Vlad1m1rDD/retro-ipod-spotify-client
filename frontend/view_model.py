@@ -357,7 +357,7 @@ class PlaylistsPage(MenuPage):
         return SinglePlaylistPage(self.playlists[index], self)
 
 
-class SettingPage(PlaylistsPage):
+class SettingPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(previous_page)
 
