@@ -359,10 +359,15 @@ class PlaylistsPage(MenuPage):
 
 class SettingPage(MenuPage):
     def __init__(self, previous_page):
-        super().__init__(previous_page)
+        super().__init__(self.get_title(), previous_page, has_sub_page=True)
+        self.single_setting = self.get_content()
+        self.num_single_setting = len(self.single_setting)
 
     def get_title(self):
         return "Settings"
+
+    def total_size(self):
+        return self.num_single_setting
 
     def get_content(self):
         return bluetoothDevices()
