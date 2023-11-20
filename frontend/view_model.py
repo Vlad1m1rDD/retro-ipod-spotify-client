@@ -1,4 +1,4 @@
-from frontend.settings import bluetoothDevices
+from settings import bluetoothDevices
 import spotify_manager
 import re as re
 from functools import lru_cache
