@@ -3,10 +3,7 @@ import bluetooth
 
 def findBluetoothDevices():
     return list(
-        map(
-            lambda addr, name: {addr, name},
-            bluetooth.discover_devices(lookup_names=True),
-        )
+        bluetooth.discover_devices(lookup_names=True),
     )
 
 
