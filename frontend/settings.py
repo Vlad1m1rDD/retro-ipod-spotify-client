@@ -10,7 +10,7 @@ def tupleToObject(t):
 def findBluetoothDevices():
     devices = (bluetooth.discover_devices(lookup_names=True),)
     # print(devices)
-    listDevices = map(tupleToObject, devices)
+    listDevices = list(map(tupleToObject, devices))
     print(listDevices)
     return listDevices
 
