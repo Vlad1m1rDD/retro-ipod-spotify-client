@@ -2,6 +2,9 @@ from settings import *
 import spotify_manager
 import re as re
 from functools import lru_cache
+import tkinter
+
+tk = tkinter.Tk()
 
 MENU_PAGE_SIZE = 6
 
@@ -325,7 +328,24 @@ class ShowsPage(MenuPage):
         return SingleShowPage(self.shows[index], self)
 
 
-class BluetoothPage(MenuPage):
+class SettingsPage(MenuPage):
+    def __init__(self, previous_page):
+        super().__init__(self.get_title(), previous_page, has_sub_page=True)
+        self.num_settings = len(self.pages)
+        self.pages = [BluetoothPage(self)]
+
+    def get_title(self):
+        return "Settings"
+
+    def total_size(self):
+        return self.num_settings
+
+    @lru_cache(maxsize=15)
+    def page_at(self, index):
+        return self.pages[index]
+
+
+class BluetoothPage(SettingsPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.devices = self.get_content()
@@ -345,9 +365,10 @@ class BluetoothPage(MenuPage):
 
     @lru_cache(maxsize=15)
     def page_at(self, index):
-        return f"{self.devices[index]}"
-
-    # return connectToBtDevice(self.devices[index][0], self.port)
+        listbox = tkinter.Listbox(tk)
+        listbox.pack()
+        listbox.insert(self.devices)
+        return listbox
 
 
 class PlaylistsPage(MenuPage):
@@ -364,9 +385,7 @@ class PlaylistsPage(MenuPage):
         return "Playlists"
 
     def get_content(self):
-        pl = spotify_manager.DATASTORE.getAllSavedPlaylists()
-        print(f"playlists: {pl}")
-        return pl
+        return spotify_manager.DATASTORE.getAllSavedPlaylists()
 
     def get_idx(self, e):  # function to get idx from UserPlaylist for sorting
         if (
@@ -596,7 +615,7 @@ class RootPage(MenuPage):
             AlbumsPage(self),
             NewReleasesPage(self),
             PlaylistsPage(self),
-            BluetoothPage(self),
+            SettingsPage(self),
             ShowsPage(self),
             SearchPage(self),
             NowPlayingPage(self, "Now Playing", NowPlayingCommand()),
