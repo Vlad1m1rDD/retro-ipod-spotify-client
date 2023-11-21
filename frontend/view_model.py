@@ -330,10 +330,15 @@ class SettingsPage(MenuPage):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.devices = self.get_content()
         self.num_devices = len(self.devices)
-        self.ports = findAvailablePorts()
+        self.port = findAvailablePort()
 
     def get_ports(self):
-        return findAvailablePorts()
+        server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        port = findAvailablePort()
+        server_sock.bind(("", port))
+        server_sock.listen(1)
+        print("listening on port %d" % port)
+        return port
 
     def get_title(self):
         return "Settings"

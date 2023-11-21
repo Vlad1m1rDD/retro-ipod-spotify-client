@@ -1,5 +1,7 @@
 import bluetooth
 
+server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+
 
 def findBluetoothDevices():
     return list(
@@ -7,8 +9,8 @@ def findBluetoothDevices():
     )
 
 
-def findAvailablePorts():
-    return list(bluetooth.get_available_port(bluetooth.RFCOMM))
+def findAvailablePort():
+    return bluetooth.get_available_port(bluetooth.RFCOMM)
 
 
 def connectToBtDevice(device, port):
