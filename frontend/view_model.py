@@ -3,9 +3,8 @@ import spotify_manager
 import re as re
 from functools import lru_cache
 import tkinter
-from tkinter import *
 
-tk = Tk()
+tk = tkinter.Tk()
 
 MENU_PAGE_SIZE = 6
 
