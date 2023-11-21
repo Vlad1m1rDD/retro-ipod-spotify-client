@@ -1,4 +1,3 @@
-import time
 from settings import *
 import spotify_manager
 import re as re
@@ -331,6 +330,7 @@ class BluetoothPage(MenuPage):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.devices = []
         self.num_devices = 0
+        self.discover_and_save_devices()
 
     def get_title(self):
         return "Bluetooth"
@@ -339,28 +339,16 @@ class BluetoothPage(MenuPage):
         # Discover Bluetooth devices
         discovered_devices = bluetooth.discover_devices(lookup_names=True)
 
-        # Save discovered devices to Redis using map
-        def save_device_to_redis(device_info):
-            device_name = device_info[1]
-            device_addr = device_info[0]
-            bluetooth_device = {"addr": device_addr, "name": device_name}
-            spotify_manager.DATASTORE.setBluetoothDevice(bluetooth_device)
-
-        map(save_device_to_redis, discovered_devices)
-
-        # Introduce a delay to ensure that the discovery process has enough time to complete
-        time.sleep(5)
-
-        # Retrieve the saved devices from Redis
-        self.devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+        # Save discovered devices to the class variable
+        self.devices = [
+            {"addr": addr, "name": name} for addr, name in discovered_devices
+        ]
         self.num_devices = len(self.devices)
 
     def total_size(self):
         return self.num_devices
 
     def page_at(self, index):
-        # Discover and save devices when opening BluetoothPage
-        self.discover_and_save_devices()
         return BluetoothDevice(self.devices[index], self)
 
 
