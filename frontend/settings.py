@@ -3,12 +3,13 @@ import bluetooth
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
 
+def tupleToObject(t):
+    return {"addr": t[0], "name": t[1]}
+
+
 def findBluetoothDevices():
     devices = (bluetooth.discover_devices(lookup_names=True),)
-    # print(devices)
-    return list(
-        map(lambda device: {"addr": device[0][0], "name": device[0][1]}, devices)
-    )
+    return map(tupleToObject, devices)
 
 
 def findAvailablePort():
