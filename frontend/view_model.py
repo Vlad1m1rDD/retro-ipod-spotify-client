@@ -331,8 +331,8 @@ class ShowsPage(MenuPage):
 class SettingsPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.num_settings = len(self.pages)
         self.pages = [BluetoothPage(self)]
+        self.num_settings = len(self.pages)
 
     def get_title(self):
         return "Settings"
