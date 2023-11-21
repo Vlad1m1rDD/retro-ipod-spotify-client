@@ -330,7 +330,6 @@ class BluetoothPage(MenuPage):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.devices = []
         self.num_devices = 0
-        self.connected_device = None  # Attribute to store the connected device
         self.discover_and_save_devices()
 
     def get_title(self):
@@ -346,46 +345,22 @@ class BluetoothPage(MenuPage):
         ]
         self.num_devices = len(self.devices)
 
-    def connect_to_device(self, device):
-        try:
-            port = 1  # Set the desired port
-            sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-            sock.connect((device["addr"], port))
-            print("Connected to: " + device["name"])
-            sock.close()
-            self.connected_device = device  # Update the connected device
-            return True
-        except Exception as e:
-            print("Error connecting to device:", str(e))
-            return False
-
     def total_size(self):
         return self.num_devices
 
     def page_at(self, index):
-        device = self.devices[index]
-        line_type = LINE_HIGHLIGHT if device == self.connected_device else LINE_NORMAL
-        return BluetoothDevice(device, self, line_type)
+        return BluetoothDevice(self.devices[index], self)
 
 
 class BluetoothDevice(MenuPage):
-    def __init__(self, device, bluetooth_page, line_type=LINE_NORMAL):
-        super().__init__(
-            device["name"], bluetooth_page, has_sub_page=False, line_type=line_type
-        )
+    def __init__(self, device, previous_page):
+        super().__init__(device["name"], previous_page, has_sub_page=True)
         self.device = device
+        self.addr = device["addr"]
 
-    def handle_click(self):
-        # Call the connect_to_device method from the parent BluetoothPage
-        if self.parent_page.connect_to_device(self.device):
-            print(f"Connected to {self.device['name']}!")
-
-    def render(self):
-        # Add "*" signs to the name if the device is connected
-        connected_indicator = (
-            "*" if self.device == self.parent_page.connected_device else ""
-        )
-        return f"{connected_indicator}{self.device['name']}"
+    def page_at(self, index):
+        # You can customize the rendering of a Bluetooth device here if needed
+        return LineItem(self.device["name"], LINE_NORMAL, False)
 
 
 class SettingsPage(MenuPage):
