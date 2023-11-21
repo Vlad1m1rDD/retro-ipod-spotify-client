@@ -2,9 +2,9 @@ from settings import *
 import spotify_manager
 import re as re
 from functools import lru_cache
-import tkinter
+from tkinter import *
 
-tk = tkinter.Tk()
+root = Tk()
 
 MENU_PAGE_SIZE = 6
 
@@ -365,9 +365,10 @@ class BluetoothPage(SettingsPage):
 
     @lru_cache(maxsize=15)
     def page_at(self, index):
-        listbox = tkinter.Listbox(tk)
-        listbox.pack()
-        listbox.insert(self.devices)
+        listbox = Text(root, height=5, width=30)
+        listbox.pack(pady=30)
+        for item in self.devices:
+            listbox.insert(END, item.name + "\n")
         return listbox
 
 
