@@ -328,31 +328,47 @@ class ShowsPage(MenuPage):
 class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.devices = self.get_content()
-        self.num_devices = len(self.devices)
+        self.devices = []
+        self.num_devices = 0
 
     def get_title(self):
         return "Bluetooth"
 
-    def get_content(self):
-        dbDevices = [
-            {"addr": "4C:BA:D7:1F:B7:CF", "name": "LG TV[[LG] kurabiiailidve]"},
-            {"addr": "BC:D0:74:41:01:94", "name": "MBGNM0092"},
-        ]
-        return dbDevices
+    def discover_and_save_devices(self):
+        # Discover Bluetooth devices
+        discovered_devices = bluetooth.discover_devices(lookup_names=True)
+
+        # Save discovered devices to Redis using map
+        def save_device_to_redis(device_info):
+            device_name = device_info[1]
+            device_addr = device_info[0]
+            bluetooth_device = {"addr": device_addr, "name": device_name}
+            spotify_manager.DATASTORE.setBluetoothDevice(bluetooth_device)
+
+        map(save_device_to_redis, discovered_devices)
+
+        # Retrieve the saved devices from Redis
+        self.devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+        self.num_devices = len(self.devices)
 
     def total_size(self):
         return self.num_devices
 
     def page_at(self, index):
+        # Discover and save devices when opening BluetoothPage
+        self.discover_and_save_devices()
         return BluetoothDevice(self.devices[index], self)
 
 
 class BluetoothDevice(MenuPage):
     def __init__(self, device, previous_page):
-        super().__init__(device["name"], previous_page, has_sub_page=False)
+        super().__init__(device["name"], previous_page, has_sub_page=True)
         self.device = device
         self.addr = device["addr"]
+
+    def page_at(self, index):
+        # You can customize the rendering of a Bluetooth device here if needed
+        return LineItem(self.device["name"], LINE_NORMAL, False)
 
 
 class SettingsPage(MenuPage):
