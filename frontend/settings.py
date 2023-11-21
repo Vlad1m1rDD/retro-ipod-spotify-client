@@ -5,6 +5,7 @@ server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
 def findBluetoothDevices():
     devices = (bluetooth.discover_devices(lookup_names=True),)
+    print(devices)
     return list({"addr": devices[0], "name": devices[1]})
 
 
