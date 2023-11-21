@@ -11,6 +11,7 @@ def findBluetoothDevices():
     for device in devices:
         listDevices[index] = {"addr": device[0], "name": device[1]}
         index = index + 1
+    print(listDevices)
     return listDevices
 
 
