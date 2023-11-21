@@ -336,7 +336,9 @@ class SettingsPage(MenuPage):
         return "Settings"
 
     def get_content(self):
-        return findBluetoothDevices()
+        d = findBluetoothDevices()
+        print(d)
+        return d
 
     def total_size(self):
         return self.num_devices
