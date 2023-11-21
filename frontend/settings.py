@@ -3,14 +3,14 @@ import bluetooth
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
 
+def tupleToObject(t):
+    return {"addr": t[0], "name": t[1]}
+
+
 def findBluetoothDevices():
     devices = (bluetooth.discover_devices(lookup_names=True),)
     # print(devices)
-    listDevices = []
-    index = 0
-    for device in devices:
-        listDevices[index] = {"addr": device[0], "name": device[1]}
-        index = index + 1
+    listDevices = map(tupleToObject, devices)
     print(listDevices)
     return listDevices
 
