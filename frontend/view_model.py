@@ -379,7 +379,7 @@ class SettingPage(MenuPage):
 
 class BluetoothPage(SettingPage):
     def __init__(self, previous_page):
-        super().__init__("Bluetooth", previous_page)
+        super().__init__(previous_page)
         self.devices = self.get_devices()
 
     def total_size(self):
