@@ -345,7 +345,7 @@ class SettingsPage(MenuPage):
 
     @lru_cache(maxsize=15)
     def page_at(self, index):
-        return connectToBtDevice(self.devices[index], self.port)
+        return connectToBtDevice(self.devices[index][0], self.port)
 
 
 class PlaylistsPage(MenuPage):
