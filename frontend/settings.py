@@ -6,7 +6,9 @@ server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 def findBluetoothDevices():
     devices = (bluetooth.discover_devices(lookup_names=True),)
     # print(devices)
-    return list(map(lambda device: {"addr": device[0], "name": device[1]}, devices))
+    return list(
+        map(lambda device: {"addr": device[0][0], "name": device[0][1]}, devices)
+    )
 
 
 def findAvailablePort():
