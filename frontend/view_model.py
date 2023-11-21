@@ -343,9 +343,10 @@ class SettingsPage(MenuPage):
     def total_size(self):
         return self.num_devices
 
-    # @lru_cache(maxsize=15)
-    # def page_at(self, index):
-    #     return connectToBtDevice(self.devices[index][0], self.port)
+    @lru_cache(maxsize=15)
+    def page_at(self, index):
+        return f"{self.devices[index]}"
+        # return connectToBtDevice(self.devices[index][0], self.port)
 
 
 class PlaylistsPage(MenuPage):
