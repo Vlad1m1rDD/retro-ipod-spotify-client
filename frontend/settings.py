@@ -2,11 +2,16 @@ import bluetooth
 
 
 def findBluetoothDevices():
-    return bluetooth.discover_devices(lookup_names=True)
+    return list(
+        map(
+            lambda addr, name: {addr, name},
+            bluetooth.discover_devices(lookup_names=True),
+        )
+    )
 
 
 def findAvailablePorts():
-    return bluetooth.get_available_port(bluetooth.RFCOMM)
+    return list(bluetooth.get_available_port(bluetooth.RFCOMM))
 
 
 def connectToBtDevice(device, port):

@@ -325,6 +325,30 @@ class ShowsPage(MenuPage):
         return SingleShowPage(self.shows[index], self)
 
 
+class SettingsPage(MenuPage):
+    def __init__(self, previous_page):
+        super().__init__(self.get_title(), previous_page, has_sub_page=True)
+        self.devices = self.get_content()
+        self.num_devices = len(self.devices)
+        self.ports = findAvailablePorts()
+
+    def get_ports(self):
+        return findAvailablePorts()
+
+    def get_title(self):
+        return "Settings"
+
+    def get_content(self):
+        return findBluetoothDevices()
+
+    def total_size(self):
+        return self.num_devices
+
+    @lru_cache(maxsize=15)
+    def page_at(self, index):
+        return connectToBtDevice(self.devices[index], self.ports[0])
+
+
 class PlaylistsPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
