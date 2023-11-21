@@ -6,7 +6,7 @@ import time
 import bluetooth
 import json
 
-from frontend.settings import findBluetoothDevices
+from settings import findBluetoothDevices
 
 
 class UserBluetoothDevice:
