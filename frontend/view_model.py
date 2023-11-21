@@ -330,15 +330,7 @@ class SettingsPage(MenuPage):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.devices = self.get_content()
         self.num_devices = len(self.devices)
-        self.port = findAvailablePort()
-
-    def get_ports(self):
-        server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-        port = findAvailablePort()
-        server_sock.bind(("", port))
-        server_sock.listen(1)
-        print("listening on port %d" % port)
-        return port
+        self.port = 1
 
     def get_title(self):
         return "Settings"
@@ -351,7 +343,7 @@ class SettingsPage(MenuPage):
 
     @lru_cache(maxsize=15)
     def page_at(self, index):
-        return connectToBtDevice(self.devices[index], self.ports[0])
+        return connectToBtDevice(self.devices[index], self.port)
 
 
 class PlaylistsPage(MenuPage):
