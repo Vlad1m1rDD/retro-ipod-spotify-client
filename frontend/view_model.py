@@ -346,8 +346,8 @@ class SettingsPage(MenuPage):
 
 
 class BluetoothPage(SettingsPage):
-    def __init__(self, previous_page):
-        super().__init__(self.get_title(), previous_page)
+    def __init__(self):
+        super().__init__(self.get_title(), SettingsPage)
         self.devices = self.get_content()
         self.num_devices = len(self.devices)
         self.port = 1
