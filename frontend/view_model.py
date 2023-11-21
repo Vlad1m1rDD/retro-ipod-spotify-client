@@ -593,6 +593,7 @@ class RootPage(MenuPage):
             AlbumsPage(self),
             NewReleasesPage(self),
             PlaylistsPage(self),
+            SettingsPage(self),
             ShowsPage(self),
             SearchPage(self),
             NowPlayingPage(self, "Now Playing", NowPlayingCommand()),
