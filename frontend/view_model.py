@@ -357,52 +357,6 @@ class PlaylistsPage(MenuPage):
         return SinglePlaylistPage(self.playlists[index], self)
 
 
-class SettingPage(MenuPage):
-    def __init__(self, previous_page):
-        super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.pages = [BluetoothPage(self)]
-        self.index = 0
-
-    def get_title(self):
-        return "Settings"
-
-    def total_size(self):
-        return len(self.get_pages())
-
-    def get_pages(self):
-        return self.pages
-
-    @lru_cache(maxsize=15)
-    def page_at(self, index):
-        return self.get_pages()[index]
-
-
-class BluetoothPage(SettingPage):
-    def __init__(self, previous_page):
-        super().__init__("Bluetooth")
-        self.previous_page = previous_page
-        self.devices = self.get_devices()
-
-    def total_size(self):
-        return len(self.devices())
-
-    def page_at(self, index):
-        device = self.get_devices()[index]
-        port = self.get_ports()[0]
-        connectToBtDevice(device, port)
-
-    def get_devices(self):
-        return findBluetoothDevices()
-
-    def get_ports(self):
-        return findAvailablePorts()
-
-    def render(self):
-        r = super().render()
-        print("render bluetooth")
-        return r
-
-
 class AlbumsPage(PlaylistsPage):
     def __init__(self, previous_page):
         super().__init__(previous_page)
@@ -616,7 +570,6 @@ class RootPage(MenuPage):
             NewReleasesPage(self),
             PlaylistsPage(self),
             ShowsPage(self),
-            SettingPage(self),
             SearchPage(self),
             NowPlayingPage(self, "Now Playing", NowPlayingCommand()),
         ]
