@@ -347,7 +347,6 @@ class BluetoothPage(MenuPage):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.devices = self.get_content()
         self.num_devices = len(self.devices)
-        self.port = 1
 
     def get_title(self):
         return "Bluetooth"
@@ -356,12 +355,11 @@ class BluetoothPage(MenuPage):
         # spotify_manager.refresh_bluetooth_devices()
         # dbDevice = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
         dbDevices = [
+            {"addr": "4C:BA:D7:1F:B7:CF", "name": "LG TV[[LG] kurabiiailidve]"},
             {
-                "addr": "4C:BA:D7:1F:B7:CF",
-                "name": "LG TV[[LG] kurabiiailidve]",
                 "addr": "BC:D0:74:41:01:94",
                 "name": "MBGNM0092",
-            }
+            },
         ]
         print(f"dbDevice: {dbDevices[0]}")
         return dbDevices
