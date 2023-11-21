@@ -45,15 +45,6 @@ class MenuRendering(Rendering):
         self.has_internet = spotify_manager.has_internet
 
 
-class BluetoothDevicesRendering(Rendering):
-    def __init__(self, header="", lines=[], page_start=0, total_count=0):
-        super().__init__(MENU_RENDER_TYPE)
-        self.lines = lines
-        self.header = header
-        self.page_start = page_start
-        self.total_count = total_count
-
-
 class NowPlayingRendering(Rendering):
     def __init__(self):
         super().__init__(NOW_PLAYING_RENDER)
@@ -231,7 +222,6 @@ class NowPlayingPage:
 
 
 EMPTY_LINE_ITEM = LineItem()
-EMPTY_BLUETOOTH_DEVICES_LINE_ITEM = LineItem("No Bluetooth Devices")
 
 
 class MenuPage:
@@ -335,23 +325,6 @@ class ShowsPage(MenuPage):
         return SingleShowPage(self.shows[index], self)
 
 
-# class SettingsPage(MenuPage):
-#     def __init__(self, previous_page):
-#         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-#         self.pages = [BluetoothPage(self)]
-#         self.num_settings = len(self.pages)
-
-#     def get_title(self):
-#         return "Settings"
-
-#     def total_size(self):
-#         return self.num_settings
-
-#     @lru_cache(maxsize=15)
-#     def page_at(self, index):
-#         return self.pages[index]
-
-
 class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
@@ -362,68 +335,40 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def get_content(self):
-        # spotify_manager.refresh_bluetooth_devices()
-        # dbDevice = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
         dbDevices = [
             {"addr": "4C:BA:D7:1F:B7:CF", "name": "LG TV[[LG] kurabiiailidve]"},
-            {
-                "addr": "BC:D0:74:41:01:94",
-                "name": "MBGNM0092",
-            },
+            {"addr": "BC:D0:74:41:01:94", "name": "MBGNM0092"},
         ]
-        print(f"dbDevice: {dbDevices[0]}")
-        # print(f"dbDevice: {dbDevices[0].name}")
         return dbDevices
 
     def total_size(self):
         return self.num_devices
 
-    @lru_cache(maxsize=15)
     def page_at(self, index):
         return BluetoothDevice(self.devices[index], self)
 
 
-class BluetoothDevice(BluetoothPage):
+class BluetoothDevice(MenuPage):
     def __init__(self, device, previous_page):
-        super().__init__(device["name"], BluetoothPage)
-        self.index = 0
-        self.page_start = 0
-        self.has_sub_page = False
-        self.previous_page = previous_page
-        self.is_title = False
+        super().__init__(device["name"], previous_page, has_sub_page=False)
         self.device = device
         self.addr = device["addr"]
 
-    def page_at(self, index):
-        return None
 
-    def render(self):
-        lines = []
-        total_size = len(self.device)
-        for i in range(self.page_start, self.page_start + MENU_PAGE_SIZE):
-            if i < total_size:
-                page = self.page_at(i)
-                if page is None:
-                    lines.append(EMPTY_BLUETOOTH_DEVICES_LINE_ITEM)
-                else:
-                    line_type = (
-                        LINE_TITLE
-                        if page.is_title
-                        else LINE_HIGHLIGHT
-                        if i == self.index
-                        else LINE_NORMAL
-                    )
-                    lines.append(
-                        LineItem(self.devices["name"], line_type, page.has_sub_page)
-                    )
-            else:
-                lines.append(EMPTY_BLUETOOTH_DEVICES_LINE_ITEM)
-        return BluetoothDevicesRendering(
-            lines=lines,
-            header=self.device[self.index],
-            page_start=self.index,
-            total_count=total_size,
-        )
+class SettingsPage(MenuPage):
+    def __init__(self, previous_page):
+        super().__init__(self.get_title(), previous_page, has_sub_page=True)
+        self.pages = [BluetoothPage(self)]
+        self.num_settings = len(self.pages)
+
+    def get_title(self):
+        return "Settings"
+
+    def total_size(self):
+        return self.num_settings
+
+    def page_at(self, index):
+        return self.pages[index]
 
 
 class PlaylistsPage(MenuPage):
@@ -670,7 +615,7 @@ class RootPage(MenuPage):
             AlbumsPage(self),
             NewReleasesPage(self),
             PlaylistsPage(self),
-            BluetoothPage(self),
+            SettingsPage(self),
             ShowsPage(self),
             SearchPage(self),
             NowPlayingPage(self, "Now Playing", NowPlayingCommand()),
