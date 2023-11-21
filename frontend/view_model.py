@@ -362,6 +362,7 @@ class BluetoothPage(MenuPage):
             },
         ]
         print(f"dbDevice: {dbDevices[0]}")
+        print(f"dbDevice: {dbDevices[0].name}")
         return dbDevices
 
     def total_size(self):
