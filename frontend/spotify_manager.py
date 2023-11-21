@@ -259,7 +259,7 @@ def refresh_bluetooth_devices():
     results = findBluetoothDevices()
     # print("devices    " + results)
     # DATASTORE.clearBluetoothDevices()
-    for _, item in enumerate(results["bluetooth_device"]):
+    for _, item in enumerate(results):
         if "Crusher Wireless" in item["name"]:
             print(item["name"])
             device = UserBluetoothDevice(item["addr"], item["name"])
