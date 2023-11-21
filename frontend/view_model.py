@@ -353,10 +353,18 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def get_content(self):
-        spotify_manager.refresh_bluetooth_devices()
-        dbDevice = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
-        print(f"dbDevice: {dbDevice}")
-        return dbDevice
+        # spotify_manager.refresh_bluetooth_devices()
+        # dbDevice = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+        dbDevices = [
+            {
+                "addr": "4C:BA:D7:1F:B7:CF",
+                "name": "LG TV[[LG] kurabiiailidve]",
+                "addr": "BC:D0:74:41:01:94",
+                "name": "MBGNM0092",
+            }
+        ]
+        print(f"dbDevice: {dbDevices[0]}")
+        return dbDevices
 
     def total_size(self):
         return self.num_devices
