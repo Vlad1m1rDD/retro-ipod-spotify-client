@@ -11,7 +11,7 @@ def findBluetoothDevices():
     devices = (bluetooth.discover_devices(lookup_names=True),)
     # print(devices)
     listDevices = list(map(tupleToObject, devices))
-    print(listDevices)
+    print(f"listDevices: {listDevices}")
     return listDevices
 
 

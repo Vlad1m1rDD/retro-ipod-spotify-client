@@ -337,15 +337,16 @@ class SettingsPage(MenuPage):
 
     def get_content(self):
         d = findBluetoothDevices()
-        print(d)
+        # print(d)
         return d
 
     def total_size(self):
         return self.num_devices
 
-    # @lru_cache(maxsize=15)
-    # def page_at(self, index):
-    # return f"{self.devices[index]}"
+    @lru_cache(maxsize=15)
+    def page_at(self, index):
+        return f"{self.devices[index]}"
+
     # return connectToBtDevice(self.devices[index][0], self.port)
 
 
