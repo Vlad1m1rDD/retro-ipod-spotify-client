@@ -325,7 +325,7 @@ class ShowsPage(MenuPage):
         return SingleShowPage(self.shows[index], self)
 
 
-class SettingsPage(MenuPage):
+class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.devices = self.get_content()
@@ -333,7 +333,7 @@ class SettingsPage(MenuPage):
         self.port = 1
 
     def get_title(self):
-        return "Settings"
+        return "Bluetooth"
 
     def get_content(self):
         d = findBluetoothDevices()
@@ -364,7 +364,9 @@ class PlaylistsPage(MenuPage):
         return "Playlists"
 
     def get_content(self):
-        return spotify_manager.DATASTORE.getAllSavedPlaylists()
+        pl = spotify_manager.DATASTORE.getAllSavedPlaylists()
+        print(f"playlists: {pl}")
+        return pl
 
     def get_idx(self, e):  # function to get idx from UserPlaylist for sorting
         if (
@@ -594,7 +596,7 @@ class RootPage(MenuPage):
             AlbumsPage(self),
             NewReleasesPage(self),
             PlaylistsPage(self),
-            SettingsPage(self),
+            BluetoothPage(self),
             ShowsPage(self),
             SearchPage(self),
             NowPlayingPage(self, "Now Playing", NowPlayingCommand()),
