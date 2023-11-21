@@ -6,6 +6,8 @@ import time
 import bluetooth
 import json
 
+from frontend.settings import findBluetoothDevices
+
 
 class UserBluetoothDevice:
     __slots__ = ["addr", "name", "is_active"]
@@ -254,7 +256,7 @@ def get_album_tracks(id):
 
 
 def refresh_bluetooth_devices():
-    results = bluetooth.discover_devices(lookup_names=True)
+    results = findBluetoothDevices()
     print("devices    " + results)
     # DATASTORE.clearBluetoothDevices()
     for _, item in enumerate(results["bluetooth_device"]):
