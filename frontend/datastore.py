@@ -146,6 +146,16 @@ class Datastore:
         print("device:" + str(device.id))
         self.r.set("device:" + str(device.id), pickle.dumps(device))
 
+    def setBluetoothDevice(self, device):
+        print("bluetooth_device:" + str(device.name))
+        self.r.set("bluetooth_device:" + str(device.name), pickle.dumps(device))
+
+    def getSavedBluetoothDevice(self, name):
+        return self._getSavedItem("bluetooth_device:" + name)
+
+    def getAllSavedBluetoothDevices(self):
+        return list(map(lambda name: self.getSavedBluetoothDevice(name), self.r.keys("bluetooth_device:*")))
+
     def getSavedDevice(self, id):
         return self._getSavedItem("device:" + id)
 
@@ -174,6 +184,12 @@ class Datastore:
 
     def clearDevices(self):
         devices = self.r.keys("device:*")
+        if len(devices) == 0:
+            return
+        self.r.delete(*devices)
+
+    def clearBluetoothDevices(self):
+        devices = self.r.keys("bluetooth_device:*")
         if len(devices) == 0:
             return
         self.r.delete(*devices)

@@ -2,9 +2,6 @@ from settings import *
 import spotify_manager
 import re as re
 from functools import lru_cache
-import tkinter
-
-tk = tkinter.Tk()
 
 MENU_PAGE_SIZE = 6
 
@@ -356,20 +353,27 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def get_content(self):
-        d = findBluetoothDevices()
-        # print(d)
-        return d
+        spotify_manager.refresh_bluetooth_devices()
+        dbDevice = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+        print(f"dbDevice: {dbDevice}")
+        return dbDevice
 
     def total_size(self):
         return self.num_devices
 
     @lru_cache(maxsize=15)
     def page_at(self, index):
-        listbox = tkinter.Listbox(tk)
-        listbox.pack()
-        for item in self.devices:
-            listbox.insert(END, item.name + "\n")
-        return listbox
+        return BluetoothDevice(self.devices[index], self)
+
+
+class BluetoothDevice(BluetoothPage):
+    def __init__(self, device, previous_page):
+        super().__init__(device.name, previous_page, has_sub_page=True)
+        self.device = device
+        self.addr = device.addr
+
+    def page_at(self):
+        return connectToBtDevice(self.device, 1)
 
 
 class PlaylistsPage(MenuPage):

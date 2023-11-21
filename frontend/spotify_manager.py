@@ -3,7 +3,17 @@ import datastore
 from spotipy.oauth2 import SpotifyOAuth
 import threading
 import time
+import bluetooth
 import json
+
+
+class UserBluetoothDevice:
+    __slots__ = ["addr", "name", "is_active"]
+
+    def __init__(self, addr, name, is_active):
+        self.addr = addr
+        self.name = name
+        self.is_active = is_active
 
 
 class UserDevice:
@@ -241,6 +251,17 @@ def get_album_tracks(id):
             )
         )
     return tracks
+
+
+def refresh_bluetooth_devices():
+    results = bluetooth.discover_devices(lookup_names=True)
+    print("devices    " + results)
+    # DATASTORE.clearBluetoothDevices()
+    for _, item in enumerate(results["bluetooth_device"]):
+        if "Crusher Wireless" in item["name"]:
+            print(item["name"])
+            device = UserBluetoothDevice(item["addr"], item["name"])
+            DATASTORE.setBluetoothDevice(device)
 
 
 def refresh_devices():
