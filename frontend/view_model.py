@@ -385,7 +385,7 @@ class BluetoothPage(MenuPage):
 
 class BluetoothDevice(BluetoothPage):
     def __init__(self, device, previous_page):
-        super().__init__(device["name"], previous_page, has_sub_page=True)
+        super().__init__(device["name"], BluetoothPage, has_sub_page=True)
         self.index = 0
         self.page_start = 0
         self.has_sub_page = False
