@@ -1,3 +1,4 @@
+import time
 from settings import *
 import spotify_manager
 import re as re
@@ -346,6 +347,9 @@ class BluetoothPage(MenuPage):
             spotify_manager.DATASTORE.setBluetoothDevice(bluetooth_device)
 
         map(save_device_to_redis, discovered_devices)
+
+        # Introduce a delay to ensure that the discovery process has enough time to complete
+        time.sleep(5)
 
         # Retrieve the saved devices from Redis
         self.devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
