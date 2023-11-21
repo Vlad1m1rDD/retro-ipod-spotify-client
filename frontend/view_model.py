@@ -362,7 +362,7 @@ class BluetoothPage(MenuPage):
             },
         ]
         print(f"dbDevice: {dbDevices[0]}")
-        print(f"dbDevice: {dbDevices[0].name}")
+        # print(f"dbDevice: {dbDevices[0].name}")
         return dbDevices
 
     def total_size(self):
@@ -375,9 +375,9 @@ class BluetoothPage(MenuPage):
 
 class BluetoothDevice(BluetoothPage):
     def __init__(self, device, previous_page):
-        super().__init__(device.name, previous_page, has_sub_page=True)
+        super().__init__(device["name"], previous_page, has_sub_page=True)
         self.device = device
-        self.addr = device.addr
+        self.addr = device["addr"]
 
     def page_at(self):
         return connectToBtDevice(self.device, 1)
