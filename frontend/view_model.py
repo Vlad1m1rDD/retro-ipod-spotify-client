@@ -360,9 +360,7 @@ class PlaylistsPage(MenuPage):
 class SettingPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.pages = [
-            BluetoothPage(self)
-        ]
+        self.pages = [BluetoothPage(self)]
         self.index = 0
 
     def get_title(self):
@@ -370,7 +368,7 @@ class SettingPage(MenuPage):
 
     def total_size(self):
         return len(self.get_pages())
-    
+
     def get_pages(self):
         return self.pages
 
@@ -382,7 +380,6 @@ class SettingPage(MenuPage):
 class BluetoothPage(SettingPage):
     def __init__(self, previous_page):
         super().__init__("Bluetooth", previous_page)
-        self.previous_page = previous_page
         self.devices = self.get_devices()
 
     def total_size(self):
@@ -403,8 +400,7 @@ class BluetoothPage(SettingPage):
         r = super().render()
         print("render bluetooth")
         return r
-    
-    
+
 
 class AlbumsPage(PlaylistsPage):
     def __init__(self, previous_page):
