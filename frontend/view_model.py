@@ -349,21 +349,21 @@ class BluetoothPage(MenuPage):
             return []
 
         # Run bluetoothctl commands to start scanning
-        subprocess.run(["sudo", "bluetoothctl", "power", "on"])
-        subprocess.run(["sudo", "bluetoothctl", "discoverable", "on"])
-        subprocess.run(["sudo", "bluetoothctl", "pairable", "on"])
-        subprocess.run(["sudo", "bluetoothctl", "scan", "on"])
+        subprocess.run(["bluetoothctl"])
+        subprocess.run(["power", "on"])
+        subprocess.run(["discoverable", "on"])
+        subprocess.run(["pairable", "on"])
+        subprocess.run(["scan", "on"])
 
         # Sleep for a while to allow scanning to happen
         sleep(5)  # Adjust the sleep duration based on your requirements
 
         # Run bluetoothctl command to stop scanning
-        subprocess.run(["sudo", "bluetoothctl", "scan", "off"])
+        subprocess.run(["scan", "off"])
+        subprocess.run(["exit"])
 
         # Run bluetoothctl command to get paired devices
-        result = subprocess.run(
-            ["sudo", "bluetoothctl", "devices"], capture_output=True, text=True
-        )
+        result = subprocess.run(["devices"], capture_output=True, text=True)
         paired_devices = re.findall(r"Device (.+?) (.+)", result.stdout)
 
         scanned_devices = [
