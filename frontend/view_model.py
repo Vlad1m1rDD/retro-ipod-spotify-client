@@ -383,6 +383,7 @@ class BluetoothDevice(MenuPage):
         )
         self.device = device
         self.addr = device.get("addr", "")
+        self.connected = False  # Indicate if we are connected to this device
 
     def page_at(self, index):
         # You can customize the rendering of a Bluetooth device here if needed
@@ -393,14 +394,19 @@ class BluetoothDevice(MenuPage):
         try:
             sock.connect((self.addr, port))
             print("Connected to:", self.device["name"])
+            self.connected = True
         except bluetooth.BluetoothError as e:
             print("Error connecting to", self.device["name"], ":", str(e))
         finally:
             sock.close()
 
     def nav_select(self):
-        # Execute the method to connect to the Bluetooth device
-        connectToBtDevice(self.device, 1)
+        # Toggle the connection status
+        self.connected = not self.connected
+
+        # Execute the method to connect to the Bluetooth device if it's connected
+        if self.connected:
+            self.connect_to_device(1)
 
         # Return to the BluetoothPage
         return self.previous_page
