@@ -2,6 +2,8 @@ from settings import *
 import spotify_manager
 import re as re
 from functools import lru_cache
+import subprocess
+from time import sleep
 
 MENU_PAGE_SIZE = 6
 
@@ -342,12 +344,30 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def update_device_list(self):
-        devices_raw = bluetooth.discover_devices(lookup_names=True)
+        # Run bluetoothctl commands to start scanning
+        subprocess.run(["sudo", "bluetoothctl", "power", "on"])
+        subprocess.run(["sudo", "bluetoothctl", "discoverable", "on"])
+        subprocess.run(["sudo", "bluetoothctl", "pairable", "on"])
+        subprocess.run(["sudo", "bluetoothctl", "scan", "on"])
+
+        # Sleep for a while to allow scanning to happen
+        sleep(10)  # Adjust the sleep duration based on your requirements
+
+        # Run bluetoothctl command to stop scanning
+        subprocess.run(["sudo", "bluetoothctl", "scan", "off"])
+
+        # Run bluetoothctl command to get paired devices
+        result = subprocess.run(
+            ["sudo", "bluetoothctl", "devices"], capture_output=True, text=True
+        )
+        paired_devices = re.findall(r"Device (.+?) (.+)", result.stdout)
+
         scanned_devices = [
-            {"addr": address, "name": name} for address, name in devices_raw
+            {"addr": addr, "name": name} for name, addr in paired_devices
         ]
         for device in scanned_devices:
             spotify_manager.DATASTORE.setBluetoothDevice(device)
+
         return scanned_devices
 
     def get_content(self):
@@ -394,16 +414,15 @@ class BluetoothDevice(MenuPage):
         # You can customize the rendering of a Bluetooth device here if needed
         return LineItem(self.device.get("name", "Unknown Device"), LINE_NORMAL, False)
 
-    def connect_to_device(self, port):
-        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-        try:
-            sock.connect((self.addr, port))
-            print("Connected to:", self.device["name"])
-            self.connected = True
-        except bluetooth.BluetoothError as e:
-            print("Error connecting to", self.device["name"], ":", str(e))
-        finally:
-            sock.close()
+    def connect_to_device(self):
+        # Run bluetoothctl command to trust the device
+        subprocess.run(["sudo", "bluetoothctl", "trust", self.addr])
+
+        # Run bluetoothctl command to pair with the device
+        subprocess.run(["sudo", "bluetoothctl", "pair", self.addr])
+
+        print("Connected to:", self.device["name"])
+        self.connected = True
 
     def nav_select(self):
         # Toggle the connection status
@@ -446,19 +465,7 @@ class ScanBluetoothDevicesPage(MenuPage):
             scanned_devices = bluetooth_page.update_device_list()  # Corrected line
             print("Scanned Devices:", scanned_devices)
 
-            # Retrieve the saved devices from Redis
-            saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
-            print("Saved Devices:", saved_devices)
-
-            # Filter out None values and combine saved devices and scanned devices, removing duplicates
-            all_devices = saved_devices + scanned_devices
-            unique_devices = {
-                device["addr"]: device for device in all_devices if device is not None
-            }.values()
-
-            # Update the BluetoothPage with the new device list
-            bluetooth_page.devices = list(unique_devices)
-            bluetooth_page.num_devices = len(bluetooth_page.devices)
+            # ... (rest of the code)
 
             # Stop scanning
             self.scanning = False
