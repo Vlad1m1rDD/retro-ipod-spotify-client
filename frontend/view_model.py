@@ -286,6 +286,8 @@ class MenuPage:
                 page = self.page_at(i)
                 if page is None:
                     lines.append(EMPTY_LINE_ITEM)
+                elif isinstance(page, LineItem):
+                    lines.append(page)  # If it's a LineItem, add it directly
                 else:
                     line_type = (
                         LINE_TITLE
