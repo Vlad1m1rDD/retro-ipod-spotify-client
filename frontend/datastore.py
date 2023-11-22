@@ -152,12 +152,6 @@ class Datastore:
         # Use the same key format as in getSavedBluetoothDevice
         self.r.set("bluetooth_device:" + str(device["name"]), pickle.dumps(device))
 
-    # def getSavedBluetoothDevice(self, name):
-    #     pickled_device = self._getSavedItem(b"bluetooth_device:" + name)
-    #     if pickled_device:
-    #         return pickle.loads(pickled_device)
-    #     return None
-
     def getAllSavedBluetoothDevices(self):
         devices = []
         for key in self.r.scan_iter("bluetooth_device:*"):
@@ -171,15 +165,8 @@ class Datastore:
         return self._getSavedItem("device:" + id)
 
     def _getSavedItem(self, id):
-        if isinstance(id, str):
-            id = id.encode("utf-8")
-
-        if id.startswith(b"bluetooth_device:"):
-            # Handle Bluetooth devices differently
-            device_id = id.split(b":")[1]
-            return self.r.get(b"bluetooth_device:" + device_id)
-        # Handle other types of items
-        return self.r.get(id)
+        pickled_device = self.r.get(id)
+        return pickle.loads(pickled_device)
 
     def getAllSavedDevices(self):
         return list(map(lambda idx: self._getSavedItem(idx), self.r.keys("device:*")))

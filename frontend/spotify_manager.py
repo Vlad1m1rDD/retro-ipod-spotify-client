@@ -271,8 +271,7 @@ def refresh_devices():
     for _, item in enumerate(results["devices"]):
         if "sPod" in item["name"]:
             print(item["name"])
-            # Convert the 'id' attribute to a string
-            device = UserDevice(str(item["id"]), item["name"], item["is_active"])
+            device = UserDevice(item["id"], item["name"], item["is_active"])
             DATASTORE.setUserDevice(device)
 
 
