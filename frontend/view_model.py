@@ -384,7 +384,7 @@ class BluetoothDevice(MenuPage):
         self.device = device
         self.addr = device.get("addr", "")
         self.connected = False  # Indicate if we are connected to this device
-        self.port = 1
+        self.port = 2
 
     def page_at(self, index):
         # You can customize the rendering of a Bluetooth device here if needed
