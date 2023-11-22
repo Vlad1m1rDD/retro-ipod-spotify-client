@@ -153,7 +153,7 @@ class Datastore:
     def getSavedBluetoothDevice(self, name):
         pickled_device = self._getSavedItem("bluetooth_device:" + name)
         if pickled_device:
-            return pickle.loads(pickled_device)
+            return pickle.loads(pickled_device.decode("utf-8"))
         return None
 
     def getAllSavedBluetoothDevices(self):
