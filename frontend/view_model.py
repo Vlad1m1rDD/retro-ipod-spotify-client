@@ -384,12 +384,16 @@ class BluetoothDevice(MenuPage):
         self.device = device
         self.addr = device.get("addr", "")
         self.connected = False  # Indicate if we are connected to this device
+        self.port = 1
 
     def page_at(self, index):
         # You can customize the rendering of a Bluetooth device here if needed
         return LineItem(self.device.get("name", "Unknown Device"), LINE_NORMAL, False)
 
     def connect_to_device(self, port):
+        if not self.connected:
+            self.port += 1
+
         sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         try:
             sock.connect((self.addr, port))
@@ -406,15 +410,10 @@ class BluetoothDevice(MenuPage):
 
         # Execute the method to connect to the Bluetooth device if it's connected
         if self.connected:
-            self.connect_to_device(1)
+            self.connect_to_device(self.port)
 
         # Return to the BluetoothPage
         return self.previous_page
-
-    def render(self):
-        # Update the title based on the connection status
-        title = f"{'Connected to' if self.connected else 'Connect'}: {self.device.get('name', 'Unknown Device')}"
-        return LineItem(title, LINE_NORMAL, False)
 
 
 class ScanBluetoothDevicesPage(MenuPage):
