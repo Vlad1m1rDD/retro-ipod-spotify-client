@@ -344,46 +344,37 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def update_device_list(self):
-        # Construct a string containing all the Bluetooth commands
-        bluetooth_commands = """
-            power on
-            discoverable on
-            pairable on
-            scan on
-            """
-
-        # Run all the commands in a single bluetoothctl session
-        subprocess.run(
-            ["bluetoothctl"],
-            input=bluetooth_commands,
-            text=True,
-            check=True,
-            shell=True,
+        # Run bluetoothctl command to start scanning
+        process = subprocess.Popen(
+            ["bluetoothctl"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True
         )
+
+        # Send commands to bluetoothctl
+        process.stdin.write("power on\n")
+        process.stdin.write("discoverable on\n")
+        process.stdin.write("pairable on\n")
+        process.stdin.write("scan on\n")
 
         # Sleep for a while to allow scanning to happen
         sleep(5)  # Adjust the sleep duration based on your requirements
 
-        # Run bluetoothctl command to stop scanning
-        subprocess.run(
-            ["bluetoothctl", "devices"],
-            input="exit\n",
-            text=True,
-            check=True,
-            shell=True,
-        )
+        # Send command to stop scanning
+        process.stdin.write("scan off\n")
 
-        # Run bluetoothctl command to get paired devices
-        result = subprocess.run(
-            ["bluetoothctl", "devices"], capture_output=True, text=True
-        )
-        paired_devices = re.findall(r"Device (.+?) (.+)", result.stdout)
+        # Close the bluetoothctl session
+        process.stdin.write("exit\n")
+        process.stdin.close()
 
-        scanned_devices = [
-            {"addr": addr, "name": name} for name, addr in paired_devices
-        ]
+        # Wait for the process to complete and get the output
+        output, _ = process.communicate()
+
+        # Parse the output to get the list of devices
+        scanned_devices = re.findall(r"Device (.+?) (.+)", output)
+
         for device in scanned_devices:
-            spotify_manager.DATASTORE.setBluetoothDevice(device)
+            spotify_manager.DATASTORE.setBluetoothDevice(
+                {"addr": device[1], "name": device[0]}
+            )
 
         return scanned_devices
 
