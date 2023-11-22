@@ -354,9 +354,11 @@ class BluetoothPage(MenuPage):
         saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
         print("Saved Devices:", saved_devices)
 
-        # Combine saved devices and scanned devices, removing duplicates
+        # Filter out None values and combine saved devices and scanned devices, removing duplicates
         all_devices = saved_devices + scanned_devices
-        unique_devices = {device["addr"]: device for device in all_devices}.values()
+        unique_devices = {
+            device["addr"]: device for device in all_devices if device is not None
+        }.values()
 
         # Add a placeholder for the "Scan" section
         return [{"section": "Scan", "name": "Scan for Devices"}] + list(unique_devices)
