@@ -411,6 +411,11 @@ class BluetoothDevice(MenuPage):
         # Return to the BluetoothPage
         return self.previous_page
 
+    def render(self):
+        # Update the title based on the connection status
+        title = f"{'Connected to' if self.connected else 'Connect'}: {self.device.get('name', 'Unknown Device')}"
+        return LineItem(title, LINE_NORMAL, False)
+
 
 class ScanBluetoothDevicesPage(MenuPage):
     def __init__(self, previous_page):
