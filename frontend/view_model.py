@@ -361,7 +361,7 @@ class BluetoothPage(MenuPage):
         }.values()
 
         # Add a placeholder for the "Scan" section
-        return [{"section": "Scan", "name": "Scan for Devices"}] + list(unique_devices)
+        return [{"name": "Scan for Devices"}] + list(unique_devices)
 
     def total_size(self):
         return self.num_devices
@@ -369,10 +369,11 @@ class BluetoothPage(MenuPage):
     def page_at(self, index):
         device_info = self.devices[index]
 
-        if device_info["section"] == "Scan":
+        # Check if the "section" key exists in the dictionary
+        if "section" in device_info and device_info["section"] == "Scan":
             return ScanBluetoothDevicesPage(self)
         else:
-            return BluetoothDevice(self.devices[index], self)
+            return BluetoothDevice(device_info, self)
 
 
 class BluetoothDevice(MenuPage):
