@@ -10,12 +10,11 @@ from settings import findBluetoothDevices
 
 
 class UserBluetoothDevice:
-    __slots__ = ["addr", "name", "is_active"]
+    __slots__ = ["addr", "name"]
 
-    def __init__(self, addr, name, is_active):
+    def __init__(self, addr, name):
         self.addr = addr
         self.name = name
-        self.is_active = is_active
 
 
 class UserDevice:

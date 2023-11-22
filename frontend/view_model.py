@@ -336,6 +336,14 @@ class BluetoothPage(MenuPage):
     def get_title(self):
         return "Bluetooth"
 
+    def update_device_list(self):
+        devices_raw = bluetooth.discover_devices(lookup_names=True)
+        self.devices = [
+            {"addr": address, "name": name} for address, name in devices_raw
+        ]
+        for device in self.devices:
+            spotify_manager.DATASTORE.setBluetoothDevice(device)
+
     def get_content(self):
         # Retrieve the saved devices from Redis
         saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
