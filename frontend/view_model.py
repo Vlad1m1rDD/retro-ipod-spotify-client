@@ -348,9 +348,11 @@ class BluetoothPage(MenuPage):
     def get_content(self):
         # Trigger Bluetooth scan and get scanned devices
         scanned_devices = self.update_device_list()
+        print("Scanned Devices:", scanned_devices)
 
         # Retrieve the saved devices from Redis
         saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+        print("Saved Devices:", saved_devices)
 
         # Combine saved devices and scanned devices, removing duplicates
         all_devices = saved_devices + scanned_devices
