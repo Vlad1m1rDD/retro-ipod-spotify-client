@@ -329,26 +329,31 @@ class ShowsPage(MenuPage):
 
 
 class BluetoothPage(MenuPage):
-    def __init__(self, previous_page, scanned_devices=None):
+    def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.devices = self.get_content(scanned_devices)
+        self.devices = self.get_content()
         self.num_devices = len(self.devices)
 
-    def reload_device_list(self, scanned_devices=None):
-        self.devices = self.get_content(scanned_devices)
+    def reload_device_list(self):
+        self.devices = self.get_content()
         self.num_devices = len(self.devices)
 
     def get_title(self):
         return "Bluetooth"
 
-    def get_content(self, scanned_devices=None):
-        # If scanned_devices is provided, use it; otherwise, trigger Bluetooth scan and get scanned devices
-        if scanned_devices is not None:
-            print("Scanned Devices:", scanned_devices)
-            self.devices = list(scanned_devices)
-        else:
-            # Add a placeholder for the "Scan" section
-            scanned_devices = [{"name": "Scan for Devices"}]
+    def update_device_list(self):
+        devices_raw = bluetooth.discover_devices(lookup_names=True)
+        scanned_devices = [
+            {"addr": address, "name": name} for address, name in devices_raw
+        ]
+        for device in scanned_devices:
+            spotify_manager.DATASTORE.setBluetoothDevice(device)
+        return scanned_devices
+
+    def get_content(self):
+        # Trigger Bluetooth scan and get scanned devices
+        scanned_devices = self.update_device_list()
+        print("Scanned Devices:", scanned_devices)
 
         # Retrieve the saved devices from Redis
         saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
@@ -356,15 +361,12 @@ class BluetoothPage(MenuPage):
 
         # Filter out None values and combine saved devices and scanned devices, removing duplicates
         all_devices = saved_devices + scanned_devices
-
-        # Check if the "addr" key is present in each device dictionary
         unique_devices = {
-            device.get("addr", ""): device
-            for device in all_devices
-            if device is not None
+            device["addr"]: device for device in all_devices if device is not None
         }.values()
 
-        return list(unique_devices)
+        # Add a placeholder for the "Scan" section
+        return [{"name": "Scan for Devices"}] + list(unique_devices)
 
     def total_size(self):
         return self.num_devices
@@ -469,8 +471,7 @@ class ScanBluetoothDevicesPage(MenuPage):
 class SettingsPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.bluetooth_page = BluetoothPage(self, scanned_devices=None)
-        self.pages = [self.bluetooth_page]
+        self.pages = [BluetoothPage(self)]
         self.num_settings = len(self.pages)
 
     def get_title(self):
@@ -481,32 +482,6 @@ class SettingsPage(MenuPage):
 
     def page_at(self, index):
         return self.pages[index]
-
-    def nav_select(self):
-        # Start scanning for devices using PyBluez
-        scanned_devices = self.update_device_list()
-        print("Scanned Devices:", scanned_devices)
-
-        # Pass the scanned devices to the BluetoothPage
-        self.bluetooth_page.reload_device_list(scanned_devices)
-
-        # Return to the BluetoothPage
-        return self.bluetooth_page
-
-    def update_device_list(self):
-        # Trigger Bluetooth scan and get scanned devices
-        nearby_devices = bluetooth.discover_devices(
-            duration=10, lookup_names=True, device_id=-1, device_class=0
-        )
-        scanned_devices = [
-            {"addr": address, "name": name} for address, name in nearby_devices
-        ]
-
-        # Save scanned devices to the data store
-        for device in scanned_devices:
-            spotify_manager.DATASTORE.setBluetoothDevice(device)
-
-        return scanned_devices
 
 
 class PlaylistsPage(MenuPage):
