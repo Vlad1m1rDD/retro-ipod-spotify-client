@@ -345,36 +345,30 @@ class BluetoothPage(MenuPage):
 
     def update_device_list(self):
         # Run bluetoothctl command to start scanning
-        process = subprocess.Popen(
-            ["bluetoothctl"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True
-        )
-
-        # Send commands to bluetoothctl
-        process.stdin.write("power on\n")
-        process.stdin.write("discoverable on\n")
-        process.stdin.write("pairable on\n")
-        process.stdin.write("scan on\n")
+        subprocess.run(["bluetoothctl", "scan", "on"], text=True, check=True)
 
         # Sleep for a while to allow scanning to happen
         sleep(5)  # Adjust the sleep duration based on your requirements
 
-        # Send command to stop scanning
-        process.stdin.write("scan off\n")
+        # Run bluetoothctl command to stop scanning
+        subprocess.run(["bluetoothctl", "scan", "off"], text=True, check=True)
 
-        # Close the bluetoothctl session
-        process.stdin.write("exit\n")
-        process.stdin.close()
+        # Run bluetoothctl command to get scanned devices
+        result = subprocess.run(
+            ["bluetoothctl", "info"], capture_output=True, text=True
+        )
 
-        # Wait for the process to complete and get the output
-        output, _ = process.communicate()
+        scanned_devices = []
 
-        # Parse the output to get the list of devices
-        scanned_devices = re.findall(r"Device (.+?) (.+)", output)
+        # Parse the output to get device information
+        pattern = re.compile(r"Device (.+?) (.+)")
+        matches = pattern.findall(result.stdout)
+        for addr, name in matches:
+            scanned_devices.append({"addr": addr, "name": name})
 
+        # Save scanned devices to the data store
         for device in scanned_devices:
-            spotify_manager.DATASTORE.setBluetoothDevice(
-                {"addr": device[1], "name": device[0]}
-            )
+            spotify_manager.DATASTORE.setBluetoothDevice(device)
 
         return scanned_devices
 
