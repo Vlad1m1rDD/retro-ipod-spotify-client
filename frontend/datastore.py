@@ -171,6 +171,9 @@ class Datastore:
         return self._getSavedItem("device:" + id)
 
     def _getSavedItem(self, id):
+        print(type(id))
+        asd = id.split(":")[0]
+        print(asd)
         if id.startswith("bluetooth_device:"):
             # Handle Bluetooth devices differently
             device_id = id.split(":")[1]
