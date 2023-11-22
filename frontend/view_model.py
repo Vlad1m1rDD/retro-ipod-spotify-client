@@ -333,8 +333,8 @@ class ShowsPage(MenuPage):
 class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.devices = []
-        self.num_devices = 0
+        self.devices = self.get_content()
+        self.num_devices = len(self.devices)
 
     def reload_device_list(self):
         self.devices = self.get_content()
@@ -344,10 +344,6 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def update_device_list(self):
-        if self.scanning:
-            print("Already scanning for devices...")
-            return []
-
         # Run bluetoothctl commands to start scanning
         subprocess.run(["bluetoothctl"])
         subprocess.run(["power", "on"])
@@ -363,7 +359,9 @@ class BluetoothPage(MenuPage):
         subprocess.run(["exit"])
 
         # Run bluetoothctl command to get paired devices
-        result = subprocess.run(["devices"], capture_output=True, text=True)
+        result = subprocess.run(
+            ["bluetoothctl", "devices"], capture_output=True, text=True
+        )
         paired_devices = re.findall(r"Device (.+?) (.+)", result.stdout)
 
         scanned_devices = [
@@ -375,12 +373,16 @@ class BluetoothPage(MenuPage):
         return scanned_devices
 
     def get_content(self):
+        # Trigger Bluetooth scan and get scanned devices
+        scanned_devices = self.update_device_list()
+        print("Scanned Devices:", scanned_devices)
+
         # Retrieve the saved devices from Redis
         saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
         print("Saved Devices:", saved_devices)
 
         # Filter out None values and combine saved devices and scanned devices, removing duplicates
-        all_devices = saved_devices + self.update_device_list()
+        all_devices = saved_devices + scanned_devices
         unique_devices = {
             device["addr"]: device for device in all_devices if device is not None
         }.values()
