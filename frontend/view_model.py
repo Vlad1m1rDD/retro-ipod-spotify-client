@@ -328,28 +328,29 @@ class ShowsPage(MenuPage):
 class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.devices = []
-        self.num_devices = 0
-        self.discover_and_save_devices()
+        self.devices = self.get_content()
+        self.num_devices = len(self.devices)
 
     def get_title(self):
         return "Bluetooth"
 
-    def discover_and_save_devices(self):
-        # Discover Bluetooth devices
-        discovered_devices = bluetooth.discover_devices(lookup_names=True)
+    def get_content(self):
+        # Retrieve the saved devices from Redis
+        saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
 
-        # Save discovered devices to the class variable
-        self.devices = [
-            {"addr": addr, "name": name} for addr, name in discovered_devices
-        ]
-        self.num_devices = len(self.devices)
+        # Add a placeholder for the "Scan" section
+        return [{"section": "Scan", "name": "Scan for Devices"}] + saved_devices
 
     def total_size(self):
         return self.num_devices
 
     def page_at(self, index):
-        return BluetoothDevice(self.devices[index], self)
+        device_info = self.devices[index]
+
+        if device_info["section"] == "Scan":
+            return ScanBluetoothDevicesPage(self)
+        else:
+            return BluetoothDevice(self.devices[index], self)
 
 
 class BluetoothDevice(MenuPage):
@@ -361,6 +362,19 @@ class BluetoothDevice(MenuPage):
     def page_at(self, index):
         # You can customize the rendering of a Bluetooth device here if needed
         return LineItem(self.device["name"], LINE_NORMAL, False)
+
+
+class ScanBluetoothDevicesPage(MenuPage):
+    def __init__(self, previous_page):
+        super().__init__(
+            "Scan for Devices", previous_page, has_sub_page=False, is_title=True
+        )
+
+    def total_size(self):
+        return 1  # Only one element in this section
+
+    def page_at(self, index):
+        return LineItem("Scanning...", LINE_NORMAL, False)
 
 
 class SettingsPage(MenuPage):
