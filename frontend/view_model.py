@@ -356,8 +356,12 @@ class BluetoothPage(MenuPage):
 
         # Filter out None values and combine saved devices and scanned devices, removing duplicates
         all_devices = saved_devices + scanned_devices
+
+        # Check if the "addr" key is present in each device dictionary
         unique_devices = {
-            device["addr"]: device for device in all_devices if device is not None
+            device.get("addr", ""): device
+            for device in all_devices
+            if device is not None
         }.values()
 
         return list(unique_devices)
