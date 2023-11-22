@@ -330,52 +330,26 @@ class BluetoothPage(MenuPage):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
         self.devices = []
         self.num_devices = 0
-
-        # Add a static "Scan" button at the beginning of the list
-        self.devices.append({"name": "Scan", "addr": ""})
-        self.num_devices += 1
-
-        # Add any initially discovered devices to the list
-        self.devices.extend(spotify_manager.DATASTORE.getAllSavedBluetoothDevices())
-        self.num_devices += len(self.devices) - 1  # Subtract 1 for the "Scan" button
+        self.discover_and_save_devices()
 
     def get_title(self):
         return "Bluetooth"
 
-    def get_content(self):
-        return self.devices
+    def discover_and_save_devices(self):
+        # Discover Bluetooth devices
+        discovered_devices = bluetooth.discover_devices(lookup_names=True)
+
+        # Save discovered devices to the class variable
+        self.devices = [
+            {"addr": addr, "name": name} for addr, name in discovered_devices
+        ]
+        self.num_devices = len(self.devices)
 
     def total_size(self):
         return self.num_devices
 
     def page_at(self, index):
         return BluetoothDevice(self.devices[index], self)
-
-    def handle_click(self, index):
-        if index == 0:
-            # Clicked on the "Scan" button, trigger Bluetooth scan
-            self.scan_for_devices()
-        else:
-            # Clicked on a device, handle accordingly
-            super().handle_click(index)
-
-    def scan_for_devices(self):
-        # Discover Bluetooth devices
-        discovered_devices = bluetooth.discover_devices(lookup_names=True)
-
-        # Save discovered devices to Redis
-        for device_info in discovered_devices:
-            device_name = device_info[1]
-            device_addr = device_info[0]
-            bluetooth_device = {"addr": device_addr, "name": device_name}
-            spotify_manager.DATASTORE.setBluetoothDevice(bluetooth_device)
-
-        # Update the list of devices
-        self.devices = []
-        self.devices.append({"name": "Scan", "addr": ""})
-        self.num_devices = 1
-        self.devices.extend(spotify_manager.DATASTORE.getAllSavedBluetoothDevices())
-        self.num_devices += len(self.devices) - 1  # Subtract 1 for the "Scan" button
 
 
 class BluetoothDevice(MenuPage):
