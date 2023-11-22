@@ -5,8 +5,7 @@ import threading
 import time
 import bluetooth
 import json
-
-from settings import findBluetoothDevices
+import settings
 
 
 class UserBluetoothDevice:
@@ -255,7 +254,7 @@ def get_album_tracks(id):
 
 
 def refresh_bluetooth_devices():
-    results = findBluetoothDevices()
+    results = settings.findBluetoothDevices()
     # print("devices    " + results)
     DATASTORE.clearBluetoothDevices()
     for _, item in enumerate(results):
