@@ -365,7 +365,13 @@ class BluetoothPage(MenuPage):
         sleep(5)  # Adjust the sleep duration based on your requirements
 
         # Run bluetoothctl command to stop scanning
-        subprocess.run(["scan off"], input="exit\n", text=True, check=True, shell=True)
+        subprocess.run(
+            ["bluetoothctl", "devices"],
+            input="exit\n",
+            text=True,
+            check=True,
+            shell=True,
+        )
 
         # Run bluetoothctl command to get paired devices
         result = subprocess.run(
