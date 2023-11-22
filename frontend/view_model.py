@@ -1,3 +1,4 @@
+import subprocess
 from settings import *
 import spotify_manager
 import re as re
@@ -395,15 +396,15 @@ class BluetoothDevice(MenuPage):
         return LineItem(self.device.get("name", "Unknown Device"), LINE_NORMAL, False)
 
     def connect_to_device(self, port):
-        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         try:
-            sock.connect((self.addr, port))
+            # sock.connect((self.addr, port))
+            subprocess.run(["bluetoothctl", "trust", self.addr], text=True, check=True)
+            subprocess.run(["bluetoothctl", "pair", self.addr], text=True, check=True)
             print("Connected to:", self.device["name"])
             self.connected = True
         except bluetooth.BluetoothError as e:
             print("Error connecting to", self.device["name"], ":", str(e))
-        finally:
-            sock.close()
 
     def nav_select(self):
         # Toggle the connection status
