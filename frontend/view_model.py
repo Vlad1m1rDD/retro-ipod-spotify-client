@@ -344,20 +344,28 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def update_device_list(self):
-        # Run bluetoothctl commands to start scanning
-        subprocess.run(["bluetoothctl"])
-        sleep(1)
-        subprocess.run(["power", "on"])
-        subprocess.run(["discoverable", "on"])
-        subprocess.run(["pairable", "on"])
-        subprocess.run(["scan", "on"])
+        # Construct a string containing all the Bluetooth commands
+        bluetooth_commands = """
+            power on
+            discoverable on
+            pairable on
+            scan on
+            """
+
+        # Run all the commands in a single bluetoothctl session
+        subprocess.run(
+            ["bluetoothctl"],
+            input=bluetooth_commands,
+            text=True,
+            check=True,
+            shell=True,
+        )
 
         # Sleep for a while to allow scanning to happen
         sleep(5)  # Adjust the sleep duration based on your requirements
 
         # Run bluetoothctl command to stop scanning
-        subprocess.run(["scan", "off"])
-        subprocess.run(["exit"])
+        subprocess.run(["scan off"], input="exit\n", text=True, check=True, shell=True)
 
         # Run bluetoothctl command to get paired devices
         result = subprocess.run(
