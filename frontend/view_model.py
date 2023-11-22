@@ -377,13 +377,15 @@ class BluetoothPage(MenuPage):
 
 class BluetoothDevice(MenuPage):
     def __init__(self, device, previous_page):
-        super().__init__(device["name"], previous_page, has_sub_page=True)
+        super().__init__(
+            device.get("name", "Unknown Device"), previous_page, has_sub_page=True
+        )
         self.device = device
-        self.addr = device["addr"]
+        self.addr = device.get("addr", "")
 
     def page_at(self, index):
         # You can customize the rendering of a Bluetooth device here if needed
-        return LineItem(self.device["name"], LINE_NORMAL, False)
+        return LineItem(self.device.get("name", "Unknown Device"), LINE_NORMAL, False)
 
 
 class ScanBluetoothDevicesPage(MenuPage):
