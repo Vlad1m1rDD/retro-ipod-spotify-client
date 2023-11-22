@@ -400,6 +400,8 @@ class BluetoothDevice(MenuPage):
         power on
         discoverable on
         pairable on
+        scan on
+        scan off
         pair {self.addr}
         trust {self.addr}
         connect {self.addr}
