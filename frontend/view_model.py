@@ -19,7 +19,7 @@ LINE_TITLE = 2
 
 spotify_manager.refresh_devices()
 # spotify_manager.refresh_data()
-spotify_manager.refresh_bluetooth_devices()
+# spotify_manager.refresh_bluetooth_devices()
 
 
 class LineItem:
@@ -333,8 +333,8 @@ class ShowsPage(MenuPage):
 class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.devices = self.get_content()
-        self.num_devices = len(self.devices)
+        self.devices = []
+        self.num_devices = 0
 
     def reload_device_list(self):
         self.devices = self.get_content()
@@ -344,6 +344,10 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def update_device_list(self):
+        if self.scanning:
+            print("Already scanning for devices...")
+            return []
+
         # Run bluetoothctl commands to start scanning
         subprocess.run(["sudo", "bluetoothctl", "power", "on"])
         subprocess.run(["sudo", "bluetoothctl", "discoverable", "on"])
@@ -351,7 +355,7 @@ class BluetoothPage(MenuPage):
         subprocess.run(["sudo", "bluetoothctl", "scan", "on"])
 
         # Sleep for a while to allow scanning to happen
-        sleep(10)  # Adjust the sleep duration based on your requirements
+        sleep(5)  # Adjust the sleep duration based on your requirements
 
         # Run bluetoothctl command to stop scanning
         subprocess.run(["sudo", "bluetoothctl", "scan", "off"])
@@ -371,16 +375,12 @@ class BluetoothPage(MenuPage):
         return scanned_devices
 
     def get_content(self):
-        # Trigger Bluetooth scan and get scanned devices
-        scanned_devices = self.update_device_list()
-        print("Scanned Devices:", scanned_devices)
-
         # Retrieve the saved devices from Redis
         saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
         print("Saved Devices:", saved_devices)
 
         # Filter out None values and combine saved devices and scanned devices, removing duplicates
-        all_devices = saved_devices + scanned_devices
+        all_devices = saved_devices + self.update_device_list()
         unique_devices = {
             device["addr"]: device for device in all_devices if device is not None
         }.values()
