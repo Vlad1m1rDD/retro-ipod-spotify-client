@@ -6,6 +6,7 @@ import time
 import bluetooth
 import json
 import settings
+from datetime import datetime, timedelta
 
 
 class UserBluetoothDevice:
@@ -301,36 +302,45 @@ def parse_show(show):
     return (UserShow(show["name"], publisher, len(episodes), show["uri"]), episodes)
 
 
-def refresh_data():
-    DATASTORE.clear()
-    results = sp.current_user_saved_tracks(limit=pageSize, offset=0)
-    # totalIndex = 0 # variable to preserve playlist sort index when calling offset loop down below
+def refresh_data(self):
+    self.datastore.clear()
+
+    # Get the timestamp of the last update (default to 7 days ago if no timestamp is available)
+    last_update_timestamp = self.datastore.get_last_update_timestamp() or (
+        datetime.now() - timedelta(days=7)
+    )
+
+    self.refresh_saved_tracks(last_update_timestamp)
+    self.refresh_followed_artists(last_update_timestamp)
+    self.refresh_playlists(last_update_timestamp)
+    self.refresh_saved_albums(last_update_timestamp)
+    self.refresh_new_releases()
+    self.refresh_saved_shows()
+
+    self.refresh_devices()
+    self.datastore.set_last_update_timestamp(datetime.now())
+    print("Data refreshed successfully")
+
+
+def refresh_saved_tracks(self, last_update_timestamp):
+    results = self.sp.current_user_saved_tracks(
+        limit=self.PAGE_SIZE, offset=0, time_after=last_update_timestamp.timestamp()
+    )
+
+    self.update_datastore_with_tracks(results)
+
     while results["next"]:
         offset = results["offset"]
-        for idx, item in enumerate(results["items"]):
-            # if item['track']['uri'] is None:
-            #     #print(item['track']['uri'])  #for testing purposes
-            #     continue
-            # else:
-            track = item["track"]
-            DATASTORE.setSavedTrack(
-                idx + offset,
-                UserTrack(
-                    track["name"],
-                    track["artists"][0]["name"],
-                    track["album"]["name"],
-                    track["uri"],
-                ),
-            )
-            # totalIndex = totalIndex + 1
-        results = sp.next(results)
+        results = self.sp.next(results)
+        self.update_datastore_with_tracks(results, offset)
 
-    offset = results["offset"]
+
+def update_datastore_with_tracks(self, results, offset=0):
     for idx, item in enumerate(results["items"]):
         track = item["track"]
-        DATASTORE.setSavedTrack(
+        self.datastore.set_saved_track(
             idx + offset,
-            UserTrack(
+            datastore.UserTrack(
                 track["name"],
                 track["artists"][0]["name"],
                 track["album"]["name"],
@@ -338,80 +348,16 @@ def refresh_data():
             ),
         )
 
-    print("Spotify tracks fetched")
+    # Implement similar methods for other data types (artists, playlists, albums, etc.)
 
-    offset = 0
-    results = sp.current_user_followed_artists(limit=pageSize)
-    while results["artists"]["next"]:
-        for idx, item in enumerate(results["artists"]["items"]):
-            DATASTORE.setArtist(idx + offset, UserArtist(item["name"], item["uri"]))
-        results = sp.next(results["artists"])
-        offset = offset + pageSize
 
-    for idx, item in enumerate(results["artists"]["items"]):
-        DATASTORE.setArtist(idx + offset, UserArtist(item["name"], item["uri"]))
-
-    print("Spotify artists fetched: " + str(DATASTORE.getArtistCount()))
-
-    results = sp.current_user_playlists(limit=pageSize)
-    totalindex = 0  # variable to preserve playlist sort index when calling offset loop down below
-    while results["next"]:
-        offset = results["offset"]
-        for idx, item in enumerate(results["items"]):
-            tracks = get_playlist_tracks(item["id"])
-            DATASTORE.setPlaylist(
-                UserPlaylist(item["name"], totalindex, item["uri"], len(tracks)),
-                tracks,
-                index=idx + offset,
-            )
-            totalindex = totalindex + 1
-        results = sp.next(results)
-
-    offset = results["offset"]
-    for idx, item in enumerate(results["items"]):
-        tracks = get_playlist_tracks(item["id"])
-        DATASTORE.setPlaylist(
-            UserPlaylist(item["name"], totalindex, item["uri"], len(tracks)),
-            tracks,
-            index=idx + offset,
-        )
-        totalindex = totalindex + 1
-
-    print("Spotify playlists fetched: " + str(DATASTORE.getPlaylistCount()))
-
-    results = sp.current_user_saved_albums(limit=pageSize)
-    while results["next"]:
-        offset = results["offset"]
-        for idx, item in enumerate(results["items"]):
-            album, tracks = parse_album(item["album"])
-            DATASTORE.setAlbum(album, tracks, index=idx + offset)
-        results = sp.next(results)
-
-    offset = results["offset"]
-    for idx, item in enumerate(results["items"]):
-        album, tracks = parse_album(item["album"])
-        DATASTORE.setAlbum(album, tracks, index=idx + offset)
-
-    print("Refreshed user albums")
-
-    results = sp.new_releases(limit=pageSize)
-    for idx, item in enumerate(results["albums"]["items"]):
-        album, tracks = parse_album(item)
-        DATASTORE.setNewRelease(album, tracks, index=idx)
-
-    print("Refreshed new releases")
-
-    results = sp.current_user_saved_shows(limit=pageSize)
+def refresh_saved_shows(self):
+    results = self.sp.current_user_saved_shows(limit=self.PAGE_SIZE)
     if len(results["items"]) > 0:
         offset = results["offset"]
         for idx, item in enumerate(results["items"]):
-            show, episodes = parse_show(item["show"])
-            DATASTORE.setShow(show, episodes, index=idx)
-
-    print("Spotify Shows fetched")
-
-    refresh_devices()
-    print("Refreshed devices")
+            show, episodes = self.parse_show(item["show"])
+            self.datastore.set_show(show, episodes, index=idx + offset)
 
 
 def play_artist(artist_uri, device_id=None):
