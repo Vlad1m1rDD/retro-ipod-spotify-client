@@ -410,7 +410,7 @@ class BluetoothDevice(MenuPage):
 
         # Execute the method to connect to the Bluetooth device if it's connected
         if self.connected:
-            self.connect_to_device(1)
+            self.connect_to_device(2)
 
         # Return to the BluetoothPage
         return self.previous_page
