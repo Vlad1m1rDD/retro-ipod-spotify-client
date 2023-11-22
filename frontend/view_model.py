@@ -4,6 +4,7 @@ import re as re
 from functools import lru_cache
 import subprocess
 from time import sleep
+from subprocess import Popen, PIPE, TimeoutExpired
 
 MENU_PAGE_SIZE = 6
 
@@ -348,29 +349,38 @@ class BluetoothPage(MenuPage):
         subprocess.run(["bluetoothctl", "scan", "on"], text=True, check=True)
 
         # Sleep for a while to allow scanning to happen
-        sleep(5)  # Adjust the sleep duration based on your requirements
+        sleep_time = 10  # Adjust the sleep duration based on your requirements
+        sleep(sleep_time)
 
         # Run bluetoothctl command to stop scanning
         subprocess.run(["bluetoothctl", "scan", "off"], text=True, check=True)
 
-        # Run bluetoothctl command to get scanned devices
-        result = subprocess.run(
-            ["bluetoothctl", "info"], capture_output=True, text=True
-        )
+        try:
+            # Run bluetoothctl command to get scanned devices with a timeout
+            with Popen(
+                ["bluetoothctl", "info"], stdout=PIPE, stderr=PIPE, text=True
+            ) as process:
+                result, _ = process.communicate(
+                    timeout=5
+                )  # Adjust the timeout based on your requirements
 
-        scanned_devices = []
+            scanned_devices = []
 
-        # Parse the output to get device information
-        pattern = re.compile(r"Device (.+?) (.+)")
-        matches = pattern.findall(result.stdout)
-        for addr, name in matches:
-            scanned_devices.append({"addr": addr, "name": name})
+            # Parse the output to get device information
+            pattern = re.compile(r"Device (.+?) (.+)")
+            matches = pattern.findall(result)
+            for addr, name in matches:
+                scanned_devices.append({"addr": addr, "name": name})
 
-        # Save scanned devices to the data store
-        for device in scanned_devices:
-            spotify_manager.DATASTORE.setBluetoothDevice(device)
+            # Save scanned devices to the data store
+            for device in scanned_devices:
+                spotify_manager.DATASTORE.setBluetoothDevice(device)
 
-        return scanned_devices
+            return scanned_devices
+
+        except TimeoutExpired:
+            print("Bluetoothctl info command timed out.")
+            return []
 
     def get_content(self):
         # Trigger Bluetooth scan and get scanned devices
