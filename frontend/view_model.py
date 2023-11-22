@@ -2,9 +2,6 @@ from settings import *
 import spotify_manager
 import re as re
 from functools import lru_cache
-import subprocess
-from time import sleep
-from subprocess import Popen, PIPE, TimeoutExpired
 
 MENU_PAGE_SIZE = 6
 
@@ -18,9 +15,9 @@ LINE_NORMAL = 0
 LINE_HIGHLIGHT = 1
 LINE_TITLE = 2
 
-spotify_manager.refresh_devices()
-# spotify_manager.refresh_data()
-# spotify_manager.refresh_bluetooth_devices()
+# spotify_manager.refresh_devices()
+spotify_manager.refresh_data()
+spotify_manager.refresh_bluetooth_devices()
 
 
 class LineItem:
@@ -345,42 +342,13 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def update_device_list(self):
-        # Run bluetoothctl command to start scanning
-        subprocess.run(["bluetoothctl", "scan", "on"], text=True, check=True)
-
-        # Sleep for a while to allow scanning to happen
-        sleep_time = 10  # Adjust the sleep duration based on your requirements
-        sleep(sleep_time)
-
-        # Run bluetoothctl command to stop scanning
-        subprocess.run(["bluetoothctl", "scan", "off"], text=True, check=True)
-
-        try:
-            # Run bluetoothctl command to get scanned devices with a timeout
-            with Popen(
-                ["bluetoothctl", "info"], stdout=PIPE, stderr=PIPE, text=True
-            ) as process:
-                result, _ = process.communicate(
-                    timeout=5
-                )  # Adjust the timeout based on your requirements
-
-            scanned_devices = []
-
-            # Parse the output to get device information
-            pattern = re.compile(r"Device (.+?) (.+)")
-            matches = pattern.findall(result)
-            for addr, name in matches:
-                scanned_devices.append({"addr": addr, "name": name})
-
-            # Save scanned devices to the data store
-            for device in scanned_devices:
-                spotify_manager.DATASTORE.setBluetoothDevice(device)
-
-            return scanned_devices
-
-        except TimeoutExpired:
-            print("Bluetoothctl info command timed out.")
-            return []
+        devices_raw = bluetooth.discover_devices(lookup_names=True)
+        scanned_devices = [
+            {"addr": address, "name": name} for address, name in devices_raw
+        ]
+        for device in scanned_devices:
+            spotify_manager.DATASTORE.setBluetoothDevice(device)
+        return scanned_devices
 
     def get_content(self):
         # Trigger Bluetooth scan and get scanned devices
@@ -426,15 +394,16 @@ class BluetoothDevice(MenuPage):
         # You can customize the rendering of a Bluetooth device here if needed
         return LineItem(self.device.get("name", "Unknown Device"), LINE_NORMAL, False)
 
-    def connect_to_device(self):
-        # Run bluetoothctl command to trust the device
-        subprocess.run(["sudo", "bluetoothctl", "trust", self.addr])
-
-        # Run bluetoothctl command to pair with the device
-        subprocess.run(["sudo", "bluetoothctl", "pair", self.addr])
-
-        print("Connected to:", self.device["name"])
-        self.connected = True
+    def connect_to_device(self, port):
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        try:
+            sock.connect((self.addr, port))
+            print("Connected to:", self.device["name"])
+            self.connected = True
+        except bluetooth.BluetoothError as e:
+            print("Error connecting to", self.device["name"], ":", str(e))
+        finally:
+            sock.close()
 
     def nav_select(self):
         # Toggle the connection status
@@ -477,7 +446,19 @@ class ScanBluetoothDevicesPage(MenuPage):
             scanned_devices = bluetooth_page.update_device_list()  # Corrected line
             print("Scanned Devices:", scanned_devices)
 
-            # ... (rest of the code)
+            # Retrieve the saved devices from Redis
+            saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+            print("Saved Devices:", saved_devices)
+
+            # Filter out None values and combine saved devices and scanned devices, removing duplicates
+            all_devices = saved_devices + scanned_devices
+            unique_devices = {
+                device["addr"]: device for device in all_devices if device is not None
+            }.values()
+
+            # Update the BluetoothPage with the new device list
+            bluetooth_page.devices = list(unique_devices)
+            bluetooth_page.num_devices = len(bluetooth_page.devices)
 
             # Stop scanning
             self.scanning = False
