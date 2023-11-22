@@ -328,28 +328,50 @@ class ShowsPage(MenuPage):
 class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.devices = []
-        self.num_devices = 0
-        self.discover_and_save_devices()
+        self.devices = self.get_content()
+        self.num_devices = len(self.devices)
 
     def get_title(self):
         return "Bluetooth"
 
-    def discover_and_save_devices(self):
+    def get_content(self):
+        # Retrieve the saved devices from Redis
+        saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+
         # Discover Bluetooth devices
         discovered_devices = bluetooth.discover_devices(lookup_names=True)
 
-        # Save discovered devices to the class variable
-        self.devices = [
-            {"addr": addr, "name": name} for addr, name in discovered_devices
-        ]
-        self.num_devices = len(self.devices)
+        # Save discovered devices to Redis
+        for device_info in discovered_devices:
+            device_name = device_info[1]
+            device_addr = device_info[0]
+            bluetooth_device = {"addr": device_addr, "name": device_name}
+            spotify_manager.DATASTORE.setBluetoothDevice(bluetooth_device)
+
+        # Retrieve the saved devices again (including the newly discovered ones)
+        return saved_devices + spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
 
     def total_size(self):
-        return self.num_devices
+        return self.num_devices + 1  # +1 for the "Scan" section
 
     def page_at(self, index):
-        return BluetoothDevice(self.devices[index], self)
+        if index == 0:
+            # First section: "Scan"
+            return ScanBluetoothSection(self)
+        else:
+            # Second section: List of Bluetooth devices
+            return BluetoothDevice(self.devices[index - 1], self)
+
+
+class ScanBluetoothSection(MenuPage):
+    def __init__(self, parent_page):
+        super().__init__("Scan", parent_page, has_sub_page=False, is_title=True)
+
+    def total_size(self):
+        return 1
+
+    def page_at(self, index):
+        return None  # No need to render anything specific for the "Scan" section
 
 
 class BluetoothDevice(MenuPage):
