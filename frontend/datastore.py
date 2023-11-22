@@ -168,14 +168,15 @@ class Datastore:
         return self._getSavedItem("device:" + id)
 
     def _getSavedItem(self, id):
-        starts_with = id.split(":")[0]
-        if starts_with == "bluetooth_device":
-            print(f"starts_with: {starts_with}")
-            # Handle Bluetooth devices differently
-            device_id = id.split(":")[1]
-            return self.r.get("bluetooth_device:" + device_id)
-        # Handle other types of items
-        return self.r.get(id)
+        print(f"starts_with: {id}")
+        # starts_with = id.split(":")[0]
+        # if starts_with == "bluetooth_device":
+        #     print(f"starts_with: {starts_with}")
+        #     # Handle Bluetooth devices differently
+        #     device_id = id.split(":")[1]
+        #     return self.r.get("bluetooth_device:" + device_id)
+        # # Handle other types of items
+        # return self.r.get(id)
 
     def getAllSavedDevices(self):
         return list(map(lambda idx: self._getSavedItem(idx), self.r.keys("device:*")))
