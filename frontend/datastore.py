@@ -1,3 +1,4 @@
+import uuid
 import redis
 import pickle
 from functools import lru_cache
@@ -147,13 +148,16 @@ class Datastore:
         self.r.set("device:" + str(device.id), pickle.dumps(device))
 
     def setBluetoothDevice(self, device):
+        device_id = str(uuid.uuid4())
         print("bluetooth_device:" + str(device["name"]))
-        self.r.set("bluetooth_device:" + str(device["name"]), pickle.dumps(device))
+        self.r.set("bluetooth_device:" + device_id, pickle.dumps(device))
+        # Store the mapping between name and ID
+        self.r.set("bluetooth_device_name:" + str(device["name"]), device_id)
 
     def getSavedBluetoothDevice(self, name):
-        pickled_device = self._getSavedItem("bluetooth_device:" + name)
-        if pickled_device:
-            return pickle.loads(pickled_device.decode("utf-8"))
+        device_id = self.r.get("bluetooth_device_name:" + name)
+        if device_id:
+            return self._getSavedItem("bluetooth_device:" + device_id.decode("utf-8"))
         return None
 
     def getAllSavedBluetoothDevices(self):
@@ -168,8 +172,12 @@ class Datastore:
         return self._getSavedItem("device:" + id)
 
     def _getSavedItem(self, id):
-        pickled_device = self.r.get(id)
-        return pickle.loads(pickled_device)
+        if id.startswith("bluetooth_device:"):
+            # Handle Bluetooth devices differently
+            device_id = id.split(":")[1]
+            return self.r.get("bluetooth_device:" + device_id)
+        # Handle other types of items
+        return self.r.get(id)
 
     def getAllSavedDevices(self):
         return list(map(lambda idx: self._getSavedItem(idx), self.r.keys("device:*")))
