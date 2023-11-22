@@ -388,6 +388,23 @@ class BluetoothDevice(MenuPage):
         # You can customize the rendering of a Bluetooth device here if needed
         return LineItem(self.device.get("name", "Unknown Device"), LINE_NORMAL, False)
 
+    def connect_to_device(self, port):
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        try:
+            sock.connect((self.addr, port))
+            print("Connected to:", self.device["name"])
+        except bluetooth.BluetoothError as e:
+            print("Error connecting to", self.device["name"], ":", str(e))
+        finally:
+            sock.close()
+
+    def nav_select(self):
+        # Execute the method to connect to the Bluetooth device
+        connectToBtDevice(self.device, 1)
+
+        # Return to the BluetoothPage
+        return self.previous_page
+
 
 class ScanBluetoothDevicesPage(MenuPage):
     def __init__(self, previous_page):
