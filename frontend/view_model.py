@@ -338,18 +338,26 @@ class BluetoothPage(MenuPage):
 
     def update_device_list(self):
         devices_raw = bluetooth.discover_devices(lookup_names=True)
-        self.devices = [
+        scanned_devices = [
             {"addr": address, "name": name} for address, name in devices_raw
         ]
-        for device in self.devices:
+        for device in scanned_devices:
             spotify_manager.DATASTORE.setBluetoothDevice(device)
+        return scanned_devices
 
     def get_content(self):
+        # Trigger Bluetooth scan and get scanned devices
+        scanned_devices = self.update_device_list()
+
         # Retrieve the saved devices from Redis
         saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
 
+        # Combine saved devices and scanned devices, removing duplicates
+        all_devices = saved_devices + scanned_devices
+        unique_devices = {device["addr"]: device for device in all_devices}.values()
+
         # Add a placeholder for the "Scan" section
-        return [{"section": "Scan", "name": "Scan for Devices"}] + saved_devices
+        return [{"section": "Scan", "name": "Scan for Devices"}] + list(unique_devices)
 
     def total_size(self):
         return self.num_devices
