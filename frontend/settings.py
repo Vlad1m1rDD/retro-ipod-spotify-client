@@ -1,4 +1,5 @@
 import bluetooth
+import spotify_manager
 
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
@@ -8,11 +9,11 @@ def tupleToObject(t):
 
 
 def findBluetoothDevices():
-    devices = (bluetooth.discover_devices(lookup_names=True),)
-    # print(devices)
-    listDevices = list(map(tupleToObject, devices))
-    print(f"listDevices: {listDevices}")
-    return listDevices
+    devices_raw = bluetooth.discover_devices(lookup_names=True)
+    scanned_devices = [{"addr": address, "name": name} for address, name in devices_raw]
+    for device in scanned_devices:
+        spotify_manager.DATASTORE.setBluetoothDevice(device)
+    return scanned_devices
 
 
 def findAvailablePort():

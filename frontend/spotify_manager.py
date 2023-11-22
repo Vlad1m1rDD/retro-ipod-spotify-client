@@ -257,7 +257,7 @@ def get_album_tracks(id):
 def refresh_bluetooth_devices():
     results = findBluetoothDevices()
     # print("devices    " + results)
-    # DATASTORE.clearBluetoothDevices()
+    DATASTORE.clearBluetoothDevices()
     for _, item in enumerate(results):
         if "Crusher Wireless" in item["name"]:
             print(item["name"])

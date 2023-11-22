@@ -148,8 +148,6 @@ class Datastore:
         self.r.set("device:" + str(device.id), pickle.dumps(device))
 
     def setBluetoothDevice(self, device):
-        # print("bluetooth_device:" + str(device))
-        # Use the same key format as in getSavedBluetoothDevice
         self.r.set("bluetooth_device:" + str(device["name"]), pickle.dumps(device))
 
     def getAllSavedBluetoothDevices(self):
@@ -158,7 +156,6 @@ class Datastore:
             pickled_device = self.r.get(key)
             if pickled_device:
                 devices.append(pickle.loads(pickled_device))
-        # print(f"deviceFromDb: {devices}")
         return devices
 
     def getSavedDevice(self, id):

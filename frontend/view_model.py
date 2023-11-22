@@ -17,6 +17,7 @@ LINE_TITLE = 2
 
 spotify_manager.refresh_devices()
 # spotify_manager.refresh_data()
+spotify_manager.refresh_bluetooth_devices()
 
 
 class LineItem:
