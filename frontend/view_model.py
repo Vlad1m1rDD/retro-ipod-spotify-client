@@ -1,4 +1,3 @@
-import subprocess
 from settings import *
 import spotify_manager
 import re as re
@@ -16,8 +15,8 @@ LINE_NORMAL = 0
 LINE_HIGHLIGHT = 1
 LINE_TITLE = 2
 
-spotify_manager.refresh_devices()
-# spotify_manager.refresh_data()
+# spotify_manager.refresh_devices()
+spotify_manager.refresh_data()
 spotify_manager.refresh_bluetooth_devices()
 
 
@@ -396,21 +395,15 @@ class BluetoothDevice(MenuPage):
         return LineItem(self.device.get("name", "Unknown Device"), LINE_NORMAL, False)
 
     def connect_to_device(self, port):
-        # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         try:
-            # sock.connect((self.addr, port))
-            subprocess.run(["bluetoothctl power on"], text=True, check=True)
-            subprocess.run(["bluetoothctl discoverable on"], text=True, check=True)
-            subprocess.run(["bluetoothctl pairable on"], text=True, check=True)
-            subprocess.run(["bluetoothctl", "pair", self.addr], text=True, check=True)
-            subprocess.run(["bluetoothctl", "trust", self.addr], text=True, check=True)
-            subprocess.run(
-                ["bluetoothctl", "connect", self.addr], text=True, check=True
-            )
+            sock.connect((self.addr, port))
             print("Connected to:", self.device["name"])
             self.connected = True
         except bluetooth.BluetoothError as e:
             print("Error connecting to", self.device["name"], ":", str(e))
+        finally:
+            sock.close()
 
     def nav_select(self):
         # Toggle the connection status
