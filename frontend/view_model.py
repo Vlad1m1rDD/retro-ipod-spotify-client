@@ -1,5 +1,4 @@
 import subprocess
-from time import sleep
 from settings import *
 import spotify_manager
 import re as re
@@ -404,24 +403,14 @@ class BluetoothDevice(MenuPage):
         pair {self.addr}
         trust {self.addr}
         connect {self.addr}
+        exit
         """
-        # bluetooth_commands2 = f"""
-        # exit
-        # """
         # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         try:
             # sock.connect((self.addr, port))
             subprocess.run(
                 ["bluetoothctl"],
                 input=bluetooth_commands,
-                text=True,
-                check=True,
-                shell=True,
-            )
-            sleep(5)
-            subprocess.run(
-                ["exit"],
-                # input=bluetooth_commands2,
                 text=True,
                 check=True,
                 shell=True,
