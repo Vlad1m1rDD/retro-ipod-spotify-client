@@ -346,7 +346,9 @@ class BluetoothPage(MenuPage):
         print("Scanned Devices:", scanned_devices)
 
         # Retrieve the saved devices from Redis
-        saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+        saved_devices = [
+            {"name": "Scan for Devices"}
+        ] + spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
         print("Saved Devices:", saved_devices)
 
         # Filter out None values and combine saved devices and scanned devices, removing duplicates
