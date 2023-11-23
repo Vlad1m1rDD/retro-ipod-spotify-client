@@ -372,6 +372,7 @@ class BluetoothPage(MenuPage):
 
         # Check if the "section" key exists in the dictionary
         if "section" in device_info and device_info["section"] == "Scan":
+            self.devices = self.get_content(self)
             return ScanBluetoothDevicesPage(self)
         else:
             return BluetoothDevice(device_info, self)
