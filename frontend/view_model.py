@@ -331,7 +331,7 @@ class ShowsPage(MenuPage):
 class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+        self.devices = self.refresh_bt_devices()
         self.num_devices = len(self.devices)
 
     def get_title(self):
@@ -346,9 +346,7 @@ class BluetoothPage(MenuPage):
         print("Scanned Devices:", scanned_devices)
 
         # Retrieve the saved devices from Redis
-        saved_devices = [
-            {"name": "Scan for Devices"}
-        ] + spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
+        saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
         print("Saved Devices:", saved_devices)
 
         # Filter out None values and combine saved devices and scanned devices, removing duplicates
