@@ -15,8 +15,8 @@ LINE_NORMAL = 0
 LINE_HIGHLIGHT = 1
 LINE_TITLE = 2
 
-# spotify_manager.refresh_devices()
-spotify_manager.refresh_data()
+spotify_manager.refresh_devices()
+# spotify_manager.refresh_data()
 spotify_manager.refresh_bluetooth_devices()
 
 
@@ -334,10 +334,6 @@ class BluetoothPage(MenuPage):
         self.devices = self.get_content()
         self.num_devices = len(self.devices)
 
-    def reload_device_list(self):
-        self.devices = self.get_content()
-        self.num_devices = len(self.devices)
-
     def get_title(self):
         return "Bluetooth"
 
@@ -406,12 +402,8 @@ class BluetoothDevice(MenuPage):
             sock.close()
 
     def nav_select(self):
-        # Toggle the connection status
-        self.connected = not self.connected
-
-        # Execute the method to connect to the Bluetooth device if it's connected
-        if self.connected:
-            self.connect_to_device(2)
+        # Execute the method to connect to the Bluetooth device
+        connectToBtDevice(1)
 
         # Return to the BluetoothPage
         return self.previous_page
@@ -422,50 +414,12 @@ class ScanBluetoothDevicesPage(MenuPage):
         super().__init__(
             "Scan for Devices", previous_page, has_sub_page=False, is_title=True
         )
-        self.scanning = False
 
     def total_size(self):
         return 1  # Only one element in this section
 
     def page_at(self, index):
-        if self.scanning:
-            return LineItem("Scanning...", LINE_NORMAL, False)
-        else:
-            return LineItem(
-                "Scan complete. Press SELECT to return.", LINE_NORMAL, False
-            )
-
-    def nav_select(self):
-        if not self.scanning:
-            # Start scanning
-            self.scanning = True
-            self.live_render.refresh()
-
-            # Trigger Bluetooth scan and get scanned devices
-            bluetooth_page = self.previous_page
-            scanned_devices = bluetooth_page.update_device_list()  # Corrected line
-            print("Scanned Devices:", scanned_devices)
-
-            # Retrieve the saved devices from Redis
-            saved_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
-            print("Saved Devices:", saved_devices)
-
-            # Filter out None values and combine saved devices and scanned devices, removing duplicates
-            all_devices = saved_devices + scanned_devices
-            unique_devices = {
-                device["addr"]: device for device in all_devices if device is not None
-            }.values()
-
-            # Update the BluetoothPage with the new device list
-            bluetooth_page.devices = list(unique_devices)
-            bluetooth_page.num_devices = len(bluetooth_page.devices)
-
-            # Stop scanning
-            self.scanning = False
-            self.live_render.refresh()
-
-            # Return to the BluetoothPage
-            return bluetooth_page
+        return LineItem("Scanning...", LINE_NORMAL, False)
 
 
 class SettingsPage(MenuPage):
