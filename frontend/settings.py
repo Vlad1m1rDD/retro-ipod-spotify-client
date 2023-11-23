@@ -23,19 +23,52 @@ def find_device_port(device_address):
         return None
 
 
+def pair_and_connect(device_address, port):
+    # Pairing
+    bluetooth_pair = bluetooth.BluetoothPair(device_address)
+    paired = bluetooth_pair.pair()
+
+    if paired:
+        print(f"Paired with {device_address}")
+
+        # Trusting
+        bluetooth.set_trusted(device_address)
+        print(f"Device {device_address} set as trusted")
+
+        # Connecting
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        try:
+            sock.connect((device_address, port))
+            print(f"Connected to {device_address} on port {port}")
+
+            # Your communication logic goes here
+
+        except bluetooth.BluetoothError as e:
+            print(f"Error connecting to {device_address}: {str(e)}")
+
+        finally:
+            sock.close()
+
+    else:
+        print(f"Failed to pair with {device_address}")
+
+
 def find_bluetooth_devices():
     devices_raw = bluetooth.discover_devices(lookup_names=True)
     scanned_devices = [{"addr": address, "name": name} for address, name in devices_raw]
     for device in scanned_devices:
-        spotify_manager.DATASTORE.setBluetoothDevice(device)
+        bt_device = spotify_manager.UserBluetoothDevice(device["addr"], device["name"])
+        spotify_manager.DATASTORE.setBluetoothDevice(bt_device)
     return scanned_devices
 
 
 def connect_to_bt_device(device):
-    port = find_device_port(device["addr"])
-    sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+    device_address = device["addr"]
+    port = find_device_port(device_address)
+    if port is not None:
+        pair_and_connect(device_address, port)
+    else:
+        print(f"Unable to determine the port for the device {device_address}")
 
-    sock.connect((device["addr"], port))
     print("Connected to: " + device["name"])
-    sock.close()
     return True

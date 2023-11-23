@@ -386,9 +386,13 @@ class BluetoothDevice(MenuPage):
 
     def nav_select(self):
         if self.device["name"] == "Scan for Devices":
+            print("Scanning...")
+            find_bluetooth_devices()
+            refreshed_devices = spotify_manager.DATASTORE.getAllSavedBluetoothDevices()
             self.previous_page.devices = [
                 {"name": "Scan for Devices"}
-            ] + find_bluetooth_devices()
+            ] + refreshed_devices
+            print(find_bluetooth_devices())
         else:
             try:
                 # Execute the method to connect to the Bluetooth device
