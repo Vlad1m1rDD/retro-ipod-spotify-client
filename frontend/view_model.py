@@ -338,13 +338,7 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def update_device_list(self):
-        devices_raw = bluetooth.discover_devices(lookup_names=True)
-        scanned_devices = [
-            {"addr": address, "name": name} for address, name in devices_raw
-        ]
-        for device in scanned_devices:
-            spotify_manager.DATASTORE.setBluetoothDevice(device)
-        return scanned_devices
+        return findBluetoothDevices()
 
     def get_content(self):
         # Trigger Bluetooth scan and get scanned devices
@@ -403,9 +397,7 @@ class BluetoothDevice(MenuPage):
 
     def nav_select(self):
         if self.device["name"] == "Scan for Devices":
-            self.previous_page.devices = self.previous_page.get_content(
-                self.previous_page
-            )
+            self.previous_page.devices = findBluetoothDevices()
         else:
             # Execute the method to connect to the Bluetooth device
             connectToBtDevice(self.device, 1)

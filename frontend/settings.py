@@ -10,8 +10,13 @@ def tupleToObject(t):
 
 
 def findBluetoothDevices():
+    # devices_raw = bluetooth.discover_devices(lookup_names=True)
+    # print(f"{devices_raw}")
+    # scanned_devices = [{"addr": address, "name": name} for address, name in devices_raw]
+    # for device in scanned_devices:
+    #     spotify_manager.DATASTORE.setBluetoothDevice(device)
+    # return scanned_devices
     devices_raw = bluetooth.discover_devices(lookup_names=True)
-    print(f"{devices_raw}")
     scanned_devices = [{"addr": address, "name": name} for address, name in devices_raw]
     for device in scanned_devices:
         spotify_manager.DATASTORE.setBluetoothDevice(device)
