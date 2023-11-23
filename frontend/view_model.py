@@ -403,7 +403,9 @@ class BluetoothDevice(MenuPage):
 
     def nav_select(self):
         if self.device["name"] == "Scan for Devices":
-            self.previous_page.devices = self.previous_page.get_content(self)
+            self.previous_page.devices = self.previous_page.get_content(
+                self.previous_page
+            )
         else:
             # Execute the method to connect to the Bluetooth device
             connectToBtDevice(self.device, 1)
