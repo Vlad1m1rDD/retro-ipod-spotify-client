@@ -396,33 +396,17 @@ class BluetoothDevice(MenuPage):
         return LineItem(self.device.get("name", "Unknown Device"), LINE_NORMAL, False)
 
     def connect_to_device(self, port):
-        bluetooth_commands = f"""
-        power on
-        discoverable on
-        pairable on
-        pair {self.addr}
-        trust {self.addr}
-        connect {self.addr}
-        exit
-        """
         # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         try:
             # sock.connect((self.addr, port))
+            subprocess.run(["bluetoothctl power on"], text=True, check=True)
+            subprocess.run(["bluetoothctl discoverable on"], text=True, check=True)
+            subprocess.run(["bluetoothctl pairable on"], text=True, check=True)
+            subprocess.run(["bluetoothctl", "pair", self.addr], text=True, check=True)
+            subprocess.run(["bluetoothctl", "trust", self.addr], text=True, check=True)
             subprocess.run(
-                ["bluetoothctl"],
-                input=bluetooth_commands,
-                text=True,
-                check=True,
-                shell=True,
+                ["bluetoothctl", "connect", self.addr], text=True, check=True
             )
-            # subprocess.run(["sudo bluetoothctl power on"], text=True, check=True)
-            # subprocess.run(["bluetoothctl discoverable on"], text=True, check=True)
-            # subprocess.run(["bluetoothctl pairable on"], text=True, check=True)
-            # subprocess.run(["bluetoothctl", "pair", self.addr], text=True, check=True)
-            # subprocess.run(["bluetoothctl", "trust", self.addr], text=True, check=True)
-            # subprocess.run(
-            #     ["bluetoothctl", "connect", self.addr], text=True, check=True
-            # )
             print("Connected to:", self.device["name"])
             self.connected = True
         except bluetooth.BluetoothError as e:
