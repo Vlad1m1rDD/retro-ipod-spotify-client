@@ -401,14 +401,13 @@ class BluetoothDevice(MenuPage):
         power on
         discoverable on
         pairable on
-        scan on
-        """
-        bluetooth_commands2 = f"""
         pair {self.addr}
         trust {self.addr}
         connect {self.addr}
-        exit
         """
+        # bluetooth_commands2 = f"""
+        # exit
+        # """
         # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         try:
             # sock.connect((self.addr, port))
@@ -421,8 +420,8 @@ class BluetoothDevice(MenuPage):
             )
             sleep(5)
             subprocess.run(
-                ["scan off"],
-                input=bluetooth_commands2,
+                ["exit"],
+                # input=bluetooth_commands2,
                 text=True,
                 check=True,
                 shell=True,
