@@ -1,4 +1,5 @@
 import subprocess
+from time import sleep
 from settings import *
 import spotify_manager
 import re as re
@@ -401,7 +402,8 @@ class BluetoothDevice(MenuPage):
         discoverable on
         pairable on
         scan on
-        scan off
+        """
+        bluetooth_commands2 = f"""
         pair {self.addr}
         trust {self.addr}
         connect {self.addr}
@@ -413,6 +415,14 @@ class BluetoothDevice(MenuPage):
             subprocess.run(
                 ["bluetoothctl"],
                 input=bluetooth_commands,
+                text=True,
+                check=True,
+                shell=True,
+            )
+            sleep(5)
+            subprocess.run(
+                ["scan off"],
+                input=bluetooth_commands2,
                 text=True,
                 check=True,
                 shell=True,
