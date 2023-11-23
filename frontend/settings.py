@@ -31,8 +31,8 @@ def pair_and_connect(device_address, port):
         # Try to initiate pairing
         print(f"Attempting to pair with {device_address}")
         subprocess.run(["bluetoothctl", "pairable", "on"], check=True)
-        subprocess.run(["bluetoothctl", "pair", device_address], check=True)
-        subprocess.run(["bluetoothctl", "trust", device_address], check=True)
+        subprocess.run(["sudo", "bluetoothctl", "pair", device_address], check=True)
+        subprocess.run(["sudo", "bluetoothctl", "trust", device_address], check=True)
         print(f"Paired and trusted with {device_address}")
 
         # Connecting
