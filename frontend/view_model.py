@@ -338,7 +338,7 @@ class BluetoothPage(MenuPage):
         return "Bluetooth"
 
     def update_device_list(self):
-        return findBluetoothDevices()
+        return find_bluetooth_devices()
 
     def get_content(self):
         # Trigger Bluetooth scan and get scanned devices
@@ -388,11 +388,12 @@ class BluetoothDevice(MenuPage):
         if self.device["name"] == "Scan for Devices":
             self.previous_page.devices = [
                 {"name": "Scan for Devices"}
-            ] + findBluetoothDevices()
+            ] + find_bluetooth_devices()
         else:
             try:
                 # Execute the method to connect to the Bluetooth device
-                connectToBtDevice(self.device)
+                connect_to_bt_device(self.device)
+                self.connected = True
             except bluetooth.BluetoothError as e:
                 print("Error connecting to", self.device["name"], ":", str(e))
 

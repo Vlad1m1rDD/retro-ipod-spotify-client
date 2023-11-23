@@ -1,15 +1,10 @@
-import subprocess
 import bluetooth
 import spotify_manager
 
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
 
-def tupleToObject(t):
-    return {"addr": t[0], "name": t[1]}
-
-
-def get_device_port(device_address):
+def find_device_port(device_address):
     # Perform service discovery
     services = bluetooth.find_service(address=device_address)
 
@@ -28,10 +23,10 @@ def get_device_port(device_address):
         return None
 
 
-def findBluetoothDevices():
+def find_bluetooth_devices():
     devices_raw = bluetooth.discover_devices(lookup_names=True)
     scanned_devices = [
-        spotify_manager.UserBluetoothDevice(address=address, name=name)
+        spotify_manager.UserBluetoothDevice({"addr": address, "name": name})
         for address, name in devices_raw
     ]
     for device in scanned_devices:
@@ -39,12 +34,8 @@ def findBluetoothDevices():
     return scanned_devices
 
 
-def findAvailablePort():
-    return bluetooth.get_available_port(bluetooth.RFCOMM)
-
-
-def connectToBtDevice(device):
-    port = get_device_port(device["addr"])
+def connect_to_bt_device(device):
+    port = find_device_port(device["addr"])
     sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
     sock.connect((device["addr"], port))
