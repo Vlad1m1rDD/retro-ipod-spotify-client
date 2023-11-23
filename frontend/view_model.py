@@ -403,7 +403,7 @@ class BluetoothDevice(MenuPage):
 
     def nav_select(self):
         # Execute the method to connect to the Bluetooth device
-        connectToBtDevice(1)
+        connectToBtDevice(self.device, 2)
 
         # Return to the BluetoothPage
         return self.previous_page
