@@ -1,3 +1,4 @@
+from time import sleep
 from settings import *
 import spotify_manager
 import re as re
@@ -339,8 +340,6 @@ class BluetoothPage(MenuPage):
 
     def update_device_list(self):
         devices_raw = bluetooth.discover_devices(lookup_names=True)
-        devices_raw2 = bluetooth.discover_devices()
-        print(devices_raw2)
         scanned_devices = [
             {"addr": address, "name": name} for address, name in devices_raw
         ]
@@ -437,6 +436,15 @@ class SettingsPage(MenuPage):
         return self.num_settings
 
     def page_at(self, index):
+        if self.pages[index] == BluetoothPage:
+            bt = subprocess.Popen(
+                ["sudo", "bluetoothctl", "scan", "on"], stdin=subprocess.PIPE
+            )
+            sleep(2)
+            subprocess.Popen(
+                ["sudo", "bluetoothctl", "scan", "off"], stdin=subprocess.PIPE
+            )
+            print(bt)
         return self.pages[index]
 
 
