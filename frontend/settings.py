@@ -1,3 +1,4 @@
+import subprocess
 import bluetooth
 import spotify_manager
 
@@ -28,20 +29,11 @@ def pair_and_connect(device_address, port):
     # Pairing
     try:
         # Try to initiate pairing
-        bluetooth.create_connection(
-            (device_address, port),
-            duration=8,
-            lookup_names=True,
-            device_id=-1,
-            device_class=0,
-            proto=0,
-            channels=(1, 1),
-        )
-        print(f"Paired with {device_address}")
-
-        # Trusting (optional)
-        bluetooth.set_trusted(device_address)
-        print(f"Device {device_address} set as trusted")
+        print(f"Attempting to pair with {device_address}")
+        subprocess.run(["bluetoothctl", "pairable", "on"], check=True)
+        subprocess.run(["bluetoothctl", "pair", device_address], check=True)
+        subprocess.run(["bluetoothctl", "trust", device_address], check=True)
+        print(f"Paired and trusted with {device_address}")
 
         # Connecting
         sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
@@ -71,11 +63,11 @@ def find_bluetooth_devices():
 
 def connect_to_bt_device(device):
     device_address = device["addr"]
-    port = find_device_port(device_address)
-    if port is not None:
-        pair_and_connect(device_address, port)
-    else:
-        print(f"Unable to determine the port for the device {device_address}")
+    # port = find_device_port(device_address)
+    # if port is not None:
+    pair_and_connect(device_address, 1)
+    # else:
+    #     print(f"Unable to determine the port for the device {device_address}")
 
     print("Connected to: " + device["name"])
     return True
