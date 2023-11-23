@@ -372,7 +372,6 @@ class BluetoothPage(MenuPage):
 
         # Check if the "section" key exists in the dictionary
         if "section" in device_info and device_info["section"] == "Scan":
-            self.devices = self.get_content(self)
             return ScanBluetoothDevicesPage(self)
         else:
             return BluetoothDevice(device_info, self)
@@ -403,9 +402,11 @@ class BluetoothDevice(MenuPage):
             sock.close()
 
     def nav_select(self):
-        # Execute the method to connect to the Bluetooth device
-        print(self.device["name"])
-        connectToBtDevice(self.device, 1)
+        if self.device["name"] == "Scan for Devices":
+            self.previous_page.devices = self.previous_page.get_content(self)
+        else:
+            # Execute the method to connect to the Bluetooth device
+            connectToBtDevice(self.device, 1)
 
         # Return to the BluetoothPage
         return self.previous_page
