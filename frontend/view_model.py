@@ -1,4 +1,3 @@
-from time import sleep
 from settings import *
 import spotify_manager
 import re as re
@@ -436,15 +435,6 @@ class SettingsPage(MenuPage):
         return self.num_settings
 
     def page_at(self, index):
-        if self.pages[index] == BluetoothPage:
-            bt = subprocess.Popen(
-                ["sudo", "bluetoothctl", "scan", "on"], stdin=subprocess.PIPE
-            )
-            sleep(2)
-            subprocess.Popen(
-                ["sudo", "bluetoothctl", "scan", "off"], stdin=subprocess.PIPE
-            )
-            print(bt)
         return self.pages[index]
 
 
