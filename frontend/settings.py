@@ -57,8 +57,7 @@ def find_bluetooth_devices():
     devices_raw = bluetooth.discover_devices(lookup_names=True)
     scanned_devices = [{"addr": address, "name": name} for address, name in devices_raw]
     for device in scanned_devices:
-        bt_device = spotify_manager.UserBluetoothDevice(device["addr"], device["name"])
-        spotify_manager.DATASTORE.setBluetoothDevice(bt_device)
+        spotify_manager.DATASTORE.setBluetoothDevice(device)
     return scanned_devices
 
 
