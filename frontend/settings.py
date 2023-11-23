@@ -24,14 +24,22 @@ def find_device_port(device_address):
 
 
 def pair_and_connect(device_address, port):
+    print("Trying to connect")
     # Pairing
-    bluetooth_pair = bluetooth.BluetoothPair(device_address)
-    paired = bluetooth_pair.pair()
-
-    if paired:
+    try:
+        # Try to initiate pairing
+        bluetooth.create_connection(
+            (device_address, port),
+            duration=8,
+            lookup_names=True,
+            device_id=-1,
+            device_class=0,
+            proto=0,
+            channels=(1, 1),
+        )
         print(f"Paired with {device_address}")
 
-        # Trusting
+        # Trusting (optional)
         bluetooth.set_trusted(device_address)
         print(f"Device {device_address} set as trusted")
 
@@ -49,8 +57,8 @@ def pair_and_connect(device_address, port):
         finally:
             sock.close()
 
-    else:
-        print(f"Failed to pair with {device_address}")
+    except bluetooth.btcommon.BluetoothError as e:
+        print(f"Failed to pair with {device_address}: {str(e)}")
 
 
 def find_bluetooth_devices():

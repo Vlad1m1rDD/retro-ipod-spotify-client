@@ -331,7 +331,7 @@ class ShowsPage(MenuPage):
 class BluetoothPage(MenuPage):
     def __init__(self, previous_page):
         super().__init__(self.get_title(), previous_page, has_sub_page=True)
-        self.devices = self.refresh_bt_devices()
+        self.devices = self.get_content()
         self.num_devices = len(self.devices)
 
     def get_title(self):
@@ -340,7 +340,7 @@ class BluetoothPage(MenuPage):
     def update_device_list(self):
         return find_bluetooth_devices()
 
-    def refresh_bt_devices(self):
+    def get_content(self):
         # Trigger Bluetooth scan and get scanned devices
         scanned_devices = self.update_device_list()
         print("Scanned Devices:", scanned_devices)
@@ -355,10 +355,12 @@ class BluetoothPage(MenuPage):
             device["addr"]: device for device in all_devices if device is not None
         }.values()
 
-        updated_devices = [{"name": "Scan for Devices"}] + list(unique_devices)
-        self.devices = updated_devices
         # Add a placeholder for the "Scan" section
-        return updated_devices
+        return [{"name": "Scan for Devices"}] + list(unique_devices)
+
+    def refresh_bt_devices(self):
+        self.devices = self.get_content()
+        return self.devices
 
     def total_size(self):
         return self.num_devices
@@ -389,7 +391,8 @@ class BluetoothDevice(MenuPage):
     def nav_select(self):
         if self.device["name"] == "Scan for Devices":
             print("Scanning...")
-            self.previous_page.refresh_bt_devices()
+            refreshed_devices = self.previous_page.refresh_bt_devices()
+            print(refreshed_devices)
         else:
             try:
                 # Execute the method to connect to the Bluetooth device
