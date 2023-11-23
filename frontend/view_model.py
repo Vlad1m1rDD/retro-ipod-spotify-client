@@ -339,6 +339,8 @@ class BluetoothPage(MenuPage):
 
     def update_device_list(self):
         devices_raw = bluetooth.discover_devices(lookup_names=True)
+        devices_raw2 = bluetooth.discover_devices()
+        print(devices_raw2)
         scanned_devices = [
             {"addr": address, "name": name} for address, name in devices_raw
         ]
@@ -403,7 +405,7 @@ class BluetoothDevice(MenuPage):
 
     def nav_select(self):
         # Execute the method to connect to the Bluetooth device
-        connectToBtDevice(self.device, 2)
+        connectToBtDevice(self.device, 1)
 
         # Return to the BluetoothPage
         return self.previous_page
