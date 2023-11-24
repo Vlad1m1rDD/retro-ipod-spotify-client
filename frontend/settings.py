@@ -1,4 +1,5 @@
 import subprocess
+from time import sleep
 import bluetooth
 import spotify_manager
 import pexpect
@@ -44,6 +45,7 @@ def run_bluetoothctl_commands(commands):
         for command in commands:
             print(f"Running {command}")
             bluetoothctl_process.sendline(command)
+            sleep(0.2)
 
         # Wait for the process to finish
         bluetoothctl_process.expect(pexpect.EOF, timeout=None)
