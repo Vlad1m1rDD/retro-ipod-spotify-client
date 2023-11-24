@@ -39,16 +39,29 @@ def find_device_port(device_address):
 def run_bluetoothctl_commands(commands):
     try:
         # Spawn bluetoothctl process
-        bluetoothctl_process = pexpect.spawn("bluetoothctl")
+        bluetoothctl_process = subprocess.Popen(
+            ["bluetoothctl"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
 
         # Send commands
         for command in commands:
-            print(f"Running {command}")
-            bluetoothctl_process.sendline(command)
-            sleep(0.2)
+            print(f"running {command}")
+            bluetoothctl_process.stdin.write(command + "\n")
+            bluetoothctl_process.stdin.flush()
 
-        # Wait for the process to finish
-        bluetoothctl_process.expect(pexpect.EOF, timeout=None)
+        # Close the input stream to signal the end of input
+        bluetoothctl_process.stdin.close()
+
+        # Read output
+        output, errors = bluetoothctl_process.communicate()
+
+        # Print output and errors if any
+        print("Output:", output)
+        print("Errors:", errors)
 
     except Exception as e:
         print(f"Error running bluetoothctl commands: {str(e)}")
