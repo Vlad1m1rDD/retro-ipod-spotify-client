@@ -391,8 +391,7 @@ class BluetoothDevice(MenuPage):
     def nav_select(self):
         if self.device["name"] == "Scan for Devices":
             print("Scanning...")
-            refreshed_devices = self.previous_page.refresh_bt_devices()
-            print(f"Refreshed devices: {refreshed_devices}")
+            self.previous_page.refresh_bt_devices()
         else:
             try:
                 # Execute the method to connect to the Bluetooth device
