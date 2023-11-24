@@ -31,14 +31,16 @@ def pair_and_connect(device_address, port):
     print("Trying to connect")
     # Pairing
     try:
-        os.system("bluetoothctl")
-        os.system("power on")
-        os.system("pairable on")
-        os.system("discoverable on")
-        os.system("agent on")
-        os.system(f"pair {device_address}")
-        os.system(f"connect {device_address}")
-        os.system("exit")
+        os.system(
+            "bluetoothctl",
+            "power on",
+            "pairable on",
+            "discoverable on",
+            "agent on",
+            f"pair {device_address}",
+            f"connect {device_address}",
+            "exit",
+        )
 
         # # Try to initiate pairing
         # print(f"Attempting to pair with {device_address}")
