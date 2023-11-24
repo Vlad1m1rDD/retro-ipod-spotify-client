@@ -102,6 +102,7 @@ def scan_and_connect(target_device_name):
     # Scan for devices
     while True:
         output, _ = run_command("devices")
+        print(f"output {output}")
         devices = output.strip().split("\n")
 
         for device in devices:
