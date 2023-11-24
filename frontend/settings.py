@@ -76,9 +76,9 @@ def connect_to_bt_device(device):
     return True
 
 
-def run_command(command, expected_prompt=None):
+def run_command(command, expected_prompt=None, timeout=30):
     try:
-        process = pexpect.spawn(command)
+        process = pexpect.spawn(command, timeout=timeout)
         if expected_prompt:
             process.expect(expected_prompt)
         output = process.before.decode()
@@ -97,6 +97,8 @@ def scan_and_connect(target_device_name):
 
     # Send commands to bluetoothctl
     print("Scanning for devices...")
+    run_command("agent on", expected_prompt=prompt)
+    run_command("default-agent", expected_prompt=prompt)
     run_command("scan on", expected_prompt=prompt)
 
     found_device = None
@@ -104,18 +106,20 @@ def scan_and_connect(target_device_name):
     # Scan for devices
     while True:
         output = run_command("devices", expected_prompt=prompt)
-        print(f"output {output}")
-        devices = output.strip().split("\n")
+        if output:
+            print(f"output {output}")
+            devices = output.strip().split("\n")
 
-        for device in devices:
-            print(f"device found {device}")
-            if target_device_name in device:
-                found_device = device.split()[1]
+            for device in devices:
+                print(f"device found {device}")
+                if target_device_name in device:
+                    found_device = device.split()[1]
+                    break
+
+            if found_device:
                 break
-
-        if found_device:
-            break
-
+        else:
+            print("no output")
         # Sleep for a while before checking again
         time.sleep(5)
 
