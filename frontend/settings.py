@@ -21,7 +21,7 @@ def connect_to_bt_device(device):
     device_address = device["addr"]
     print(f"device: {device}")
 
-    pair_and_connect(device_address, 1)
+    pair_and_connect(device_address)
 
     print("Connected to: " + device["name"])
     return True
