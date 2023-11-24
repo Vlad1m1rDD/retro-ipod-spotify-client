@@ -105,6 +105,7 @@ def scan_and_connect(target_device_name):
         devices = output.strip().split("\n")
 
         for device in devices:
+            print(f"device found {device}")
             if target_device_name in device:
                 found_device = device.split()[1]
                 break
