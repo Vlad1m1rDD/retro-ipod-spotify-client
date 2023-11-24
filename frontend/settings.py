@@ -1,3 +1,4 @@
+import os
 import subprocess
 from time import sleep
 import bluetooth
@@ -5,16 +6,6 @@ import spotify_manager
 import pexpect
 
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-
-
-# def run_cmd(command: str):
-#     """Execute shell commands and return STDOUT"""
-#     process = subprocess.Popen(
-#         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-#     )
-#     stdout, stderr = process.communicate()
-
-#     return stdout.decode("utf-8")
 
 
 def find_device_port(device_address):
@@ -36,50 +27,17 @@ def find_device_port(device_address):
         return None
 
 
-def run_bluetoothctl_commands(commands):
-    try:
-        # Spawn bluetoothctl process
-        bluetoothctl_process = subprocess.Popen(
-            ["bluetoothctl"],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-        )
-
-        # Send commands
-        for command in commands:
-            bluetoothctl_process.stdin.write(command + "\n")
-            bluetoothctl_process.stdin.flush()
-
-        # Close the input stream to signal the end of input
-        bluetoothctl_process.stdin.close()
-
-        # Read output
-        output, errors = bluetoothctl_process.communicate()
-
-        # Print output and errors if any
-        print("Output:", output)
-        print("Errors:", errors)
-
-    except Exception as e:
-        print(f"Error running bluetoothctl commands: {str(e)}")
-
-
 def pair_and_connect(device_address, port):
     print("Trying to connect")
     # Pairing
     try:
-        # Try to initiate pairing
+        os.system(f"bluetoothctl connect {device_address}")
+
+        # # Try to initiate pairing
         # print(f"Attempting to pair with {device_address}")
-        print(run_cmd("bluetoothctl agent on"))
-        print(run_cmd("bluetoothctl default-agent"))
-        print(run_cmd("bluetoothctl pair {device_address}"))
-        print(run_cmd("bluetoothctl connect {device_address}"))
-        print(run_cmd("bluetoothctl info {device_address}"))
         # print(f"Paired and trusted with {device_address}")
 
-        # Connecting
+        # # Connecting
         # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         # try:
         #     sock.connect((device_address, port))
@@ -119,11 +77,9 @@ def connect_to_bt_device(device):
     # ]
     print(f"device: {device}")
 
-    ble_connect(f"./connect.sh {device_address}")
-
     # port = find_device_port(device_address)
     # if port is not None:
-    # pair_and_connect(device_address, 1)
+    pair_and_connect(device_address, 1)
 
     # run_bluetoothctl_commands(commands)
 
@@ -132,43 +88,3 @@ def connect_to_bt_device(device):
 
     print("Connected to: " + device["name"])
     return True
-
-
-# ==================================================================
-#   FUNCTION:   Run Shell Command.
-#   PURPOSE:    Call Bash script from Python code.
-#               Input paramter should be a string.
-# ------------------------------------------------------------------
-def run_cmd(command: str):
-    process = subprocess.Popen(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    stdout, stderr = process.communicate()
-
-    return stdout.decode("utf-8")
-
-
-# ------------------------------------------------------------------
-
-
-# ==================================================================
-#                 BLUETOOTH MODULE CONTROLL COMMANDS
-# ==================================================================
-
-
-# ==================================================================
-#   FUNCTION:   Bluetooth Connect
-#   PURPOSE:    Disconnect and remove already connected device.
-#               Trust and Pair with authentication BL device.
-# ------------------------------------------------------------------
-def ble_connect(command: str):
-    out = run_cmd(command)
-    if out.find("Pairing successful") != -1:
-        print("The Device connected successfully.")
-        return True
-    else:
-        print("The Device is not connected.")
-        return False
-
-
-# ------------------------------------------------------------------
