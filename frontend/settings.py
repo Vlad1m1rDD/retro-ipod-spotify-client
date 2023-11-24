@@ -76,32 +76,34 @@ def connect_to_bt_device(device):
     return True
 
 
-def run_command(command):
+def run_command(command, expected_prompt=None):
     try:
-        process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
-        )
-        output, error = process.communicate()
-        return output.decode(), error.decode()
+        process = pexpect.spawn(command)
+        if expected_prompt:
+            process.expect(expected_prompt)
+        output = process.before.decode()
+        process.close()
+        return output
     except Exception as e:
         print(f"Error running command: {e}")
-        return None, None
+        return None
 
 
 def scan_and_connect(target_device_name):
     # Start bluetoothctl
     print("Starting bluetoothctl...")
-    _, _ = run_command("bluetoothctl")
+    prompt = ".*bluetoothctl.*#"
+    run_command("bluetoothctl", expected_prompt=prompt)
 
     # Send commands to bluetoothctl
     print("Scanning for devices...")
-    _, _ = run_command("scan on")
+    run_command("scan on", expected_prompt=prompt)
 
     found_device = None
 
     # Scan for devices
     while True:
-        output, _ = run_command("devices")
+        output = run_command("devices", expected_prompt=prompt)
         print(f"output {output}")
         devices = output.strip().split("\n")
 
@@ -119,13 +121,13 @@ def scan_and_connect(target_device_name):
 
     # Stop scanning
     print("Stopping scanning...")
-    _, _ = run_command("scan off")
+    run_command("scan off", expected_prompt=prompt)
 
     # Pair and connect
     if found_device:
         print(f"Device '{target_device_name}' found. Pairing and connecting...")
-        _, _ = run_command(f"pair {found_device}")
-        _, _ = run_command(f"trust {found_device}")
-        _, _ = run_command(f"connect {found_device}")
+        run_command(f"pair {found_device}", expected_prompt=prompt)
+        run_command(f"trust {found_device}", expected_prompt=prompt)
+        run_command(f"connect {found_device}", expected_prompt=prompt)
     else:
         print(f"Device with name '{target_device_name}' not found.")
