@@ -37,6 +37,12 @@ def run_command(command):
 
 def pair_and_connect(device_address):
     try:
+        # Scan on
+        run_command(f"bluetoothctl scan on")
+        sleep(10)
+        # Scan off
+        run_command(f"bluetoothctl scan off")
+
         # Pair with the device
         run_command(f"bluetoothctl pair {device_address}")
 
