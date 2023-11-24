@@ -26,35 +26,29 @@ def find_device_port(device_address):
 
 def pair_and_connect(device_address, port):
     print("Trying to connect")
-    # Pairing
     try:
-        # Try to initiate pairing
-        # print(f"Attempting to pair with {device_address}")
-        # commands =
-        # subprocess.run(cmd1, stdout=subprocess.PIPE, text=True)
-        subprocess.run(["bluetoothctl"], check=True)
-        subprocess.run(["pairable on"], check=True)
-        subprocess.run([f"pair {device_address}"], check=True)
-        subprocess.run([f"trust {device_address}"], check=True)
-        subprocess.run([f"connect {device_address}"], check=True)
-        subprocess.run(["exit"], check=True)
-        # print(f"Paired and trusted with {device_address}")
+        # Launch bluetoothctl as a subprocess
+        bluetoothctl_process = subprocess.Popen(
+            ["bluetoothctl"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True
+        )
 
-        # Connecting
-        # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-        # try:
-        #     sock.connect((device_address, port))
-        #     print(f"Connected to {device_address} on port {port}")
+        # Send commands to bluetoothctl
+        commands = [
+            "pairable on\n",
+            f"pair {device_address}\n",
+            f"trust {device_address}\n",
+            f"connect {device_address}\n",
+            "exit\n",
+        ]
 
-        #     # Your communication logic goes here
+        for command in commands:
+            bluetoothctl_process.stdin.write(command)
+            bluetoothctl_process.stdin.flush()
 
-        # except bluetooth.BluetoothError as e:
-        #     print(f"Error connecting to {device_address}: {str(e)}")
+        # Close the process and wait for it to finish
+        bluetoothctl_process.communicate()
 
-        # finally:
-        #     sock.close()
-
-    except bluetooth.btcommon.BluetoothError as e:
+    except Exception as e:
         print(f"Failed to pair with {device_address}: {str(e)}")
 
 
