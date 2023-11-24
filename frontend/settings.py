@@ -34,15 +34,16 @@ def pair_and_connect(device_address, port):
 
         # Send commands to bluetoothctl
         commands = [
-            "pairable on\n",
-            f"pair {device_address}\n",
-            f"trust {device_address}\n",
-            f"connect {device_address}\n",
-            "exit\n",
+            "pairable on",
+            f"pair {device_address}",
+            f"trust {device_address}",
+            f"connect {device_address}",
+            "exit",
         ]
 
         for command in commands:
             bluetoothctl_process.stdin.write(command)
+            print(f"writing {command}")
             bluetoothctl_process.stdin.flush()
 
         # Close the process and wait for it to finish
