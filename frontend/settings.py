@@ -44,12 +44,11 @@ def run_bluetoothctl_commands(commands):
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True,
+            universal_newlines=True,
         )
 
         # Send commands
         for command in commands:
-            print(f"running {command}")
             bluetoothctl_process.stdin.write(command + "\n")
             bluetoothctl_process.stdin.flush()
 
