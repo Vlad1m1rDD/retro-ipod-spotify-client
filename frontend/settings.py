@@ -4,6 +4,7 @@ from time import sleep
 import bluetooth
 import spotify_manager
 import pexpect
+import time
 
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
@@ -27,29 +28,28 @@ def find_device_port(device_address):
         return None
 
 
-def pair_and_connect(device_address, port):
+def pair_and_connect(device_address):
+    port = 1
     print("Trying to connect")
     # Pairing
     try:
-        os.system("bluetoothctl connect FA:10:02:05:6F:A1")
+        # Try to initiate pairing
+        print(f"Attempting to pair with {device_address}")
+        print(f"Paired and trusted with {device_address}")
 
-        # # Try to initiate pairing
-        # print(f"Attempting to pair with {device_address}")
-        # print(f"Paired and trusted with {device_address}")
+        # Connecting
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        try:
+            sock.connect((device_address, port))
+            print(f"Connected to {device_address} on port {port}")
 
-        # # Connecting
-        # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-        # try:
-        #     sock.connect((device_address, port))
-        #     print(f"Connected to {device_address} on port {port}")
+            # Your communication logic goes here
 
-        #     # Your communication logic goes here
+        except bluetooth.BluetoothError as e:
+            print(f"Error connecting to {device_address}: {str(e)}")
 
-        # except bluetooth.BluetoothError as e:
-        #     print(f"Error connecting to {device_address}: {str(e)}")
-
-        # finally:
-        #     sock.close()
+        finally:
+            sock.close()
 
     except bluetooth.btcommon.BluetoothError as e:
         print(f"Failed to pair with {device_address}: {str(e)}")
@@ -65,26 +65,60 @@ def find_bluetooth_devices():
 
 def connect_to_bt_device(device):
     device_address = device["addr"]
-    # commands = [
-    #     "power on",
-    #     "pairable on",
-    #     "discoverable on",
-    #     "agent on",
-    #     "scan on",
-    #     f"pair {device_address}",  # Replace {device_address} with the actual address
-    #     f"trust {device_address}",  # Replace {device_address} with the actual address
-    #     f"connect {device_address}",  # Replace {device_address} with the actual address
-    # ]
     print(f"device: {device}")
 
-    # port = find_device_port(device_address)
-    # if port is not None:
-    pair_and_connect(device_address, 1)
+    # pair_and_connect(device_address, 1)
 
-    # run_bluetoothctl_commands(commands)
-
-    # else:
-    #     print(f"Unable to determine the port for the device {device_address}")
+    if __name__ == "__main__":
+        target_name = device_address  # Replace with the name of your target device
+        scan_and_connect(target_name)
 
     print("Connected to: " + device["name"])
     return True
+
+
+def run_command(command):
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+    )
+    output, error = process.communicate()
+    return output.decode(), error.decode()
+
+
+def scan_and_connect(target_device_name):
+    # Start bluetoothctl
+    run_command("bluetoothctl")
+
+    # Send commands to bluetoothctl
+    run_command("scan on")
+
+    found_device = None
+
+    # Scan for devices
+    while True:
+        output, _ = run_command("devices")
+        devices = output.strip().split("\n")
+
+        for device in devices:
+            print(f"found device", device)
+            if target_device_name in device:
+                found_device = device.split()[1]
+                break
+
+        if found_device:
+            break
+
+        # Sleep for a while before checking again
+        time.sleep(5)
+
+    # Stop scanning
+    run_command("scan off")
+
+    # Pair and connect
+    if found_device:
+        run_command(f"pair {found_device}")
+        run_command(f"trust {found_device}")
+        run_command(f"connect {found_device}")
+        run_command("exit")
+    else:
+        print(f"Device with name '{target_device_name}' not found.")
