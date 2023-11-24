@@ -7,14 +7,14 @@ import pexpect
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
 
-def run_cmd(command: str):
-    """Execute shell commands and return STDOUT"""
-    process = subprocess.Popen(
-        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    stdout, stderr = process.communicate()
+# def run_cmd(command: str):
+#     """Execute shell commands and return STDOUT"""
+#     process = subprocess.Popen(
+#         command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+#     )
+#     stdout, stderr = process.communicate()
 
-    return stdout.decode("utf-8")
+#     return stdout.decode("utf-8")
 
 
 def find_device_port(device_address):
