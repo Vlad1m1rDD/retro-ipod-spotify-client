@@ -69,9 +69,8 @@ def connect_to_bt_device(device):
 
     # pair_and_connect(device_address, 1)
 
-    if __name__ == "__main__":
-        target_name = device_address  # Replace with the name of your target device
-        scan_and_connect(target_name)
+    target_name = device_address  # Replace with the name of your target device
+    scan_and_connect(target_name)
 
     print("Connected to: " + device["name"])
     return True
