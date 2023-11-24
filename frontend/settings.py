@@ -1,6 +1,7 @@
 import subprocess
 import bluetooth
 import spotify_manager
+import pexpect
 
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
@@ -32,6 +33,22 @@ def find_device_port(device_address):
     else:
         print("No services found for the device.")
         return None
+
+
+def run_bluetoothctl_commands(commands):
+    try:
+        # Spawn bluetoothctl process
+        bluetoothctl_process = pexpect.spawn("bluetoothctl")
+
+        # Send commands
+        for command in commands:
+            bluetoothctl_process.sendline(command)
+
+        # Wait for the process to finish
+        bluetoothctl_process.expect(pexpect.EOF, timeout=None)
+
+    except Exception as e:
+        print(f"Error running bluetoothctl commands: {str(e)}")
 
 
 def pair_and_connect(device_address, port):
@@ -75,10 +92,21 @@ def find_bluetooth_devices():
 
 def connect_to_bt_device(device):
     device_address = device["addr"]
+    commands = [
+        "power on",
+        "pairable on",
+        "discoverable on",
+        "agent on",
+        "scan on",
+        f"pair {device_address}",  # Replace {device_address} with the actual address
+        f"trust {device_address}",  # Replace {device_address} with the actual address
+        f"connect {device_address}",  # Replace {device_address} with the actual address
+    ]
     print(f"device: {device}")
     # port = find_device_port(device_address)
     # if port is not None:
-    pair_and_connect(device_address, 1)
+    # pair_and_connect(device_address, 1)
+    run_bluetoothctl_commands(commands)
     # else:
     #     print(f"Unable to determine the port for the device {device_address}")
 
