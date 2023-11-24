@@ -38,13 +38,13 @@ def run_command(command):
 def pair_and_connect(device_address):
     try:
         # Pair with the device
-        run_command(f"sudo bluetoothctl pair {device_address}")
+        run_command(f"bluetoothctl pair {device_address}")
 
         # Trust with the device
-        run_command(f"sudo bluetoothctl trust {device_address}")
+        run_command(f"bluetoothctl trust {device_address}")
 
         # Connect to the device
-        run_command(f"sudo bluetoothctl connect {device_address}")
+        run_command(f"bluetoothctl connect {device_address}")
 
         print(f"Successfully paired and connected to device {device_address}")
 
