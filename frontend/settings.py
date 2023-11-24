@@ -38,6 +38,9 @@ def run_command(command):
 def pair_and_connect(device_address):
     try:
         # Pair with the device
+        run_command(f"sudo bluetoothctl pair {device_address}")
+
+        # Trust with the device
         run_command(f"sudo bluetoothctl trust {device_address}")
 
         # Connect to the device
