@@ -38,8 +38,21 @@ def run_command(command):
 def pair_and_connect(device_address):
     try:
         # Scan on
-        run_command(f"bluetoothctl scan on")
+        run_command(f"bluetoothctl scan on > /tmp/bt_scan_results &")
         sleep(10)
+
+        output, _ = run_command("cat /tmp/bt_scan_results")
+        print(f"output {output}")
+
+        for line in output.split("\n"):
+            if device_address in line:
+                print(f"line {line}")
+                target_device_address = line.split()[0]
+                break
+
+            # run_command("rm /tmp/bt_scan_results")
+
+        print(f"target_device_address {target_device_address}")
         # Scan off
         run_command(f"bluetoothctl scan off")
 
