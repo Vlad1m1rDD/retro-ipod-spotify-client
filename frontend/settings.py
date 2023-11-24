@@ -42,10 +42,11 @@ def run_bluetoothctl_commands(commands):
 
         # Send commands
         for command in commands:
+            print(f"Running {command}")
             bluetoothctl_process.sendline(command)
 
         # Wait for the process to finish
-        bluetoothctl_process.expect(pexpect.EOF, timeout=10)
+        bluetoothctl_process.expect(pexpect.EOF, timeout=None)
 
     except Exception as e:
         print(f"Error running bluetoothctl commands: {str(e)}")
