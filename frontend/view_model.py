@@ -392,7 +392,7 @@ class BluetoothDevice(MenuPage):
         if self.device["name"] == "Scan for Devices":
             print("Scanning...")
             refreshed_devices = self.previous_page.refresh_bt_devices()
-            print(refreshed_devices)
+            print(f"Refreshed devices: {refreshed_devices}")
         else:
             try:
                 # Execute the method to connect to the Bluetooth device

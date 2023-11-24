@@ -68,6 +68,8 @@ def connect_to_bt_device(device):
         for _ in bluetooth.find_service(address=device["addr"])
         if "RFCOMM" in _["protocol"]
     ][0]["port"]
+    print(f"port: {port}")
+    print(f"device: {device}")
     # port = find_device_port(device_address)
     # if port is not None:
     pair_and_connect(device_address, 1)
