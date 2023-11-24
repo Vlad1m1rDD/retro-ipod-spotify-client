@@ -30,24 +30,27 @@ def pair_and_connect(device_address, port):
     try:
         # Try to initiate pairing
         # print(f"Attempting to pair with {device_address}")
-        # subprocess.run(["bluetoothctl", "pairable", "on"], check=True)
-        # subprocess.run(["sudo", "bluetoothctl", "pair", device_address], check=True)
-        # subprocess.run(["sudo", "bluetoothctl", "trust", device_address], check=True)
+        subprocess.run(["bluetoothctl"], check=True)
+        subprocess.run(["pairable", "on"], check=True)
+        subprocess.run(["pair", device_address], check=True)
+        subprocess.run(["trust", device_address], check=True)
+        subprocess.run(["connect", device_address], check=True)
+        subprocess.run(["exit"], check=True)
         # print(f"Paired and trusted with {device_address}")
 
         # Connecting
-        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-        try:
-            sock.connect((device_address, port))
-            print(f"Connected to {device_address} on port {port}")
+        # sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        # try:
+        #     sock.connect((device_address, port))
+        #     print(f"Connected to {device_address} on port {port}")
 
-            # Your communication logic goes here
+        #     # Your communication logic goes here
 
-        except bluetooth.BluetoothError as e:
-            print(f"Error connecting to {device_address}: {str(e)}")
+        # except bluetooth.BluetoothError as e:
+        #     print(f"Error connecting to {device_address}: {str(e)}")
 
-        finally:
-            sock.close()
+        # finally:
+        #     sock.close()
 
     except bluetooth.btcommon.BluetoothError as e:
         print(f"Failed to pair with {device_address}: {str(e)}")
