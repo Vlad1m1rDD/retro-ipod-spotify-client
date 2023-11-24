@@ -78,19 +78,25 @@ def connect_to_bt_device(device):
 
 
 def run_command(command):
-    process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
-    )
-    output, error = process.communicate()
-    return output.decode(), error.decode()
+    try:
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+        )
+        output, error = process.communicate()
+        return output.decode(), error.decode()
+    except Exception as e:
+        print(f"Error running command: {e}")
+        return None, None
 
 
 def scan_and_connect(target_device_name):
     # Start bluetoothctl
-    run_command("bluetoothctl")
+    print("Starting bluetoothctl...")
+    _, _ = run_command("bluetoothctl")
 
     # Send commands to bluetoothctl
-    run_command("scan on")
+    print("Scanning for devices...")
+    _, _ = run_command("scan on")
 
     found_device = None
 
@@ -100,7 +106,6 @@ def scan_and_connect(target_device_name):
         devices = output.strip().split("\n")
 
         for device in devices:
-            print(f"found device", device)
             if target_device_name in device:
                 found_device = device.split()[1]
                 break
@@ -112,13 +117,14 @@ def scan_and_connect(target_device_name):
         time.sleep(5)
 
     # Stop scanning
-    run_command("scan off")
+    print("Stopping scanning...")
+    _, _ = run_command("scan off")
 
     # Pair and connect
     if found_device:
-        run_command(f"pair {found_device}")
-        run_command(f"trust {found_device}")
-        run_command(f"connect {found_device}")
-        run_command("exit")
+        print(f"Device '{target_device_name}' found. Pairing and connecting...")
+        _, _ = run_command(f"pair {found_device}")
+        _, _ = run_command(f"trust {found_device}")
+        _, _ = run_command(f"connect {found_device}")
     else:
         print(f"Device with name '{target_device_name}' not found.")
