@@ -9,52 +9,6 @@ import time
 server_sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
 
 
-# def find_device_port(device_address):
-#     # Perform service discovery
-#     services = bluetooth.find_service(address=device_address)
-
-#     # Check if any services were found
-#     if services:
-#         # Print information about each service
-#         for service in services:
-#             print("Service Name:", service["name"])
-#             print("Host:", service["host"])
-#             print("Port:", service["port"])
-
-#         # Return the port of the first service (you may adjust this based on your specific use case)
-#         return services[0]["port"]
-#     else:
-#         print("No services found for the device.")
-#         return None
-
-
-# def pair_and_connect(device_address):
-#     port = 1
-#     print("Trying to connect")
-#     # Pairing
-#     try:
-#         # Try to initiate pairing
-#         print(f"Attempting to pair with {device_address}")
-#         print(f"Paired and trusted with {device_address}")
-
-#         # Connecting
-#         sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-#         try:
-#             sock.connect((device_address, port))
-#             print(f"Connected to {device_address} on port {port}")
-
-#             # Your communication logic goes here
-
-#         except bluetooth.BluetoothError as e:
-#             print(f"Error connecting to {device_address}: {str(e)}")
-
-#         finally:
-#             sock.close()
-
-#     except bluetooth.btcommon.BluetoothError as e:
-#         print(f"Failed to pair with {device_address}: {str(e)}")
-
-
 def find_bluetooth_devices():
     devices_raw = bluetooth.discover_devices(lookup_names=True)
     scanned_devices = [{"addr": address, "name": name} for address, name in devices_raw]
@@ -64,73 +18,66 @@ def find_bluetooth_devices():
 
 
 def connect_to_bt_device(device):
-    device_address = device["addr"]
+    # device_address = device["addr"]
     print(f"device: {device}")
 
     # pair_and_connect(device_address, 1)
 
-    target_name = device_address  # Replace with the name of your target device
-    scan_and_connect(target_name)
+    target_name = device["name"]  # Replace with the name of your target device
+    target_address = find_device_address(target_name)
+
+    if target_address:
+        print(f"Device '{target_name}' found at address {target_address}.")
+        pair_and_connect(target_address)
+    else:
+        print(f"Device with name '{target_name}' not found.")
 
     print("Connected to: " + device["name"])
     return True
 
 
-# def run_command(command, expected_prompt=None, timeout=30):
-#     try:
-#         process = pexpect.spawn(command, timeout=timeout)
-#         if expected_prompt:
-#             process.expect(expected_prompt)
-#         output = process.before.decode()
-#         process.close()
-#         return output
-#     except Exception as e:
-#         print(f"Error running command: {e}")
-#         return None
+def run_command(command):
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True
+    )
+    output, error = process.communicate()
+    return output.decode(), error.decode()
 
 
-def scan_and_connect(target_device_name):
-    nearby_devices = bluetooth.discover_devices(lookup_names=True)
+def find_device_address(target_device_name):
+    # Start Bluetooth scanning
+    run_command("sudo hcitool scan > /tmp/bt_scan_results &")
 
-    found_device = None
-    for addr, name in nearby_devices:
-        print(f"Found device: {name} ({addr})")
-        if target_device_name in name:
-            found_device = addr
+    # Wait for the scan to complete
+    time.sleep(10)
+
+    # Read the scan results
+    output, _ = run_command("cat /tmp/bt_scan_results")
+
+    # Check if the desired device is in the scan results
+    target_device_address = None
+    for line in output.split("\n"):
+        if target_device_name in line:
+            target_device_address = line.split()[0]
             break
 
-    if found_device:
-        print(f"Device '{target_device_name}' found. Pairing and connecting...")
-        port = find_device_port(found_device)
-        if port:
-            try:
-                server_sock.connect((target_device_name, port))
-            except bluetooth.BluetoothError as e:
-                print(f"Error connecting to {target_device_name}: {str(e)}")
+    # Clean up temporary files
+    run_command("rm /tmp/bt_scan_results")
 
-            finally:
-                server_sock.close()
-
-        else:
-            print(f"Unable to find a suitable port for device '{target_device_name}'.")
-    else:
-        print(f"Device with name '{target_device_name}' not found.")
+    return target_device_address
 
 
-def find_device_port(device_address):
-    # Perform service discovery
-    services = bluetooth.find_service(address=device_address)
+def pair_and_connect(device_address):
+    try:
+        # Pair with the device
+        run_command(f"sudo hcitool cc {device_address}")
 
-    # Check if any services were found
-    if services:
-        # Print information about each service
-        for service in services:
-            print("Service Name:", service["name"])
-            print("Host:", service["host"])
-            print("Port:", service["port"])
+        # Connect to the device
+        run_command(f"sudo hcitool auth {device_address}")
 
-        # Return the port of the first service (you may adjust this based on your specific use case)
-        return services[0]["port"]
-    else:
-        print("No services found for the device.")
-        return None
+        print(f"Successfully paired and connected to device {device_address}")
+
+        # Add your communication logic here
+
+    except Exception as e:
+        print(f"Error pairing/connecting to device {device_address}: {str(e)}")
