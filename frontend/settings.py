@@ -107,23 +107,68 @@ def find_bluetooth_devices():
 
 def connect_to_bt_device(device):
     device_address = device["addr"]
-    commands = [
-        "power on",
-        "pairable on",
-        "discoverable on",
-        "agent on",
-        "scan on",
-        f"pair {device_address}",  # Replace {device_address} with the actual address
-        f"trust {device_address}",  # Replace {device_address} with the actual address
-        f"connect {device_address}",  # Replace {device_address} with the actual address
-    ]
+    # commands = [
+    #     "power on",
+    #     "pairable on",
+    #     "discoverable on",
+    #     "agent on",
+    #     "scan on",
+    #     f"pair {device_address}",  # Replace {device_address} with the actual address
+    #     f"trust {device_address}",  # Replace {device_address} with the actual address
+    #     f"connect {device_address}",  # Replace {device_address} with the actual address
+    # ]
     print(f"device: {device}")
+
+    ble_connect(f"./connect.sh {device_address}")
+
     # port = find_device_port(device_address)
     # if port is not None:
     # pair_and_connect(device_address, 1)
-    run_bluetoothctl_commands(commands)
+
+    # run_bluetoothctl_commands(commands)
+
     # else:
     #     print(f"Unable to determine the port for the device {device_address}")
 
     print("Connected to: " + device["name"])
     return True
+
+
+# ==================================================================
+#   FUNCTION:   Run Shell Command.
+#   PURPOSE:    Call Bash script from Python code.
+#               Input paramter should be a string.
+# ------------------------------------------------------------------
+def run_cmd(command: str):
+    process = subprocess.Popen(
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    stdout, stderr = process.communicate()
+
+    return stdout.decode("utf-8")
+
+
+# ------------------------------------------------------------------
+
+
+# ==================================================================
+#                 BLUETOOTH MODULE CONTROLL COMMANDS
+# ==================================================================
+
+
+# ==================================================================
+#   FUNCTION:   Bluetooth Connect
+#   PURPOSE:    Disconnect and remove already connected device.
+#               Trust and Pair with authentication BL device.
+# ------------------------------------------------------------------
+def ble_connect(command: str):
+    out = run_cmd(command)
+    if out.find("Pairing successful") != -1:
+        print("The Device connected successfully.")
+        return True
+    else:
+        print("The Device is not connected.")
+        return False
+
+
+# ------------------------------------------------------------------
