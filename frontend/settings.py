@@ -53,10 +53,12 @@ def find_device_address(target_device_name):
 
     # Read the scan results
     output, _ = run_command("cat /tmp/bt_scan_results")
+    print(f"output {output}")
 
     # Check if the desired device is in the scan results
     target_device_address = None
     for line in output.split("\n"):
+        print(f"{line}")
         if target_device_name in line:
             target_device_address = line.split()[0]
             break
