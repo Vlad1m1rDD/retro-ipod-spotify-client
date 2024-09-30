@@ -12,7 +12,7 @@
 #include <netinet/in.h> 
 
 #define CLOCK_PIN 23
-#define DATA_PIN 25
+#define DATA_PIN 5
 #define HAPTIC_PIN 26
 #define BIT_COUNT 32
 #define PORT 9090 
@@ -157,7 +157,7 @@ void onDataEdge(int gpio, int level, uint32_t tick) {
     dataBit = level;
 }
 
-int main(void *args){
+int main(int argc, char *argv[]){
   
     // Creating socket file descriptor 
     if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) { 
